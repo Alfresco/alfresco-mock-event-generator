@@ -1,0 +1,26 @@
+server:
+  port: 9090
+
+spring:
+    profiles:
+        active: activeMQ
+
+messaging:
+    to:
+        activemq:
+            host: localhost
+            port: 5672
+            url: failover:(amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port})?timeout=3000&startupMaxReconnectAttempts=0
+            camelRoute:
+                destinationName: faker.event.genenrator
+                toRoute: amqp:topic:${messaging.to.activemq.camelRoute.destinationName}
+
+        rabbitmq:
+            host: localhost
+            port: 5672
+            username: guest
+            password: guest
+            virtualHost: "/"
+            camelRoute:
+                destinationName: faker.event.genenrator
+                toRoute: rabbitmq://${messaging.to.rabbitmq.host}:${messaging.to.rabbitmq.port}/${messaging.to.rabbitmq.camelRoute.destinationName}
