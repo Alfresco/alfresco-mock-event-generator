@@ -52,7 +52,7 @@ public class EventMaker
             @Override
             public BaseEvent getEvent()
             {
-                return new ContentCreatedEventImpl(UUID.randomUUID().toString(), "CONTENT_CREATED",
+                return new ContentCreatedEventImpl(UUID.randomUUID().toString(),
                             System.currentTimeMillis(), "Repo", getUsername(),
                             Collections.singletonList("urn:alfresco:content:nodeId:" + UUID.randomUUID().toString()));
             }
@@ -62,7 +62,7 @@ public class EventMaker
             @Override
             public BaseEvent getEvent()
             {
-                return new ProcessStartedEventImpl(UUID.randomUUID().toString(), "PROCESS_STARTED",
+                return new ProcessStartedEventImpl(UUID.randomUUID().toString(),
                             System.currentTimeMillis(), "Aps", getUsername(),
                             Collections.singletonList("urn:alfresco:process:started:id:" + UUID.randomUUID().toString()));
             }
