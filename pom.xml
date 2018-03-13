@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.alfresco</groupId>
-    <artifactId>fake-event-generator</artifactId>
+    <artifactId>alfresco-fake-event-generator</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>fake-event-generator</name>
-    <description>Fake Event Generator</description>
+    <name>alfresco-fake-event-generator</name>
+    <description>Alfresco Fake Event Generator</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
