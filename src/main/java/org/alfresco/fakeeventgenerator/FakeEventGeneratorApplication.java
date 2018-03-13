@@ -8,16 +8,12 @@
 
 package org.alfresco.fakeeventgenerator;
 
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -25,6 +21,20 @@ import org.springframework.util.StringUtils;
 @SpringBootApplication
 public class FakeEventGeneratorApplication implements ApplicationRunner
 {
+    @Value("${faker.numOfEvents:10}")
+    private int numOfEvents;
+
+    @Value("${faker.pauseTimeInMillis:1000}")
+    private long pauseTimeInMillis;
+
+    @Value("${faker.startSendAtStartup:true}")
+    private boolean startSendAtStartup;
+
+    @Value("${faker.shutdownAfterSend:true}")
+    private boolean shutdownAfterSend;
+
+    @Value("${faker.waitBeforeShutdownInMillis:2000}")
+    private long waitBeforeShutdownInMillis;
 
     private final EventSender messageSender;
 
@@ -42,14 +52,16 @@ public class FakeEventGeneratorApplication implements ApplicationRunner
     @Override
     public void run(ApplicationArguments args) throws Exception
     {
-        Map<String, String> map = args.getNonOptionArgs().stream().map(str -> str.split("="))
-                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1] : ""));
+        if (startSendAtStartup)
+        {
+            messageSender.sendRandomEvent(numOfEvents, pauseTimeInMillis);
 
-        int numOfEvents = StringUtils.isEmpty(map.get("event")) ? 10 : Integer.parseInt(map.get("event"));
-        long pauseTime = StringUtils.isEmpty(map.get("pause")) ? 1000L : Long.parseLong(map.get("pause"));
-
-        messageSender.sendRandomEvent(numOfEvents, pauseTime);
-        TimeUnit.SECONDS.sleep(5);
-        System.exit(-1);
+            if (shutdownAfterSend)
+            {
+                // Wait before shutting down
+                Thread.sleep(waitBeforeShutdownInMillis);
+                System.exit(0);
+            }
+        }
     }
 }

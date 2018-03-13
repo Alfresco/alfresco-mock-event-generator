@@ -1,0 +1,32 @@
+server:
+    port: 9090
+
+faker:
+    startSendAtStartup: false
+
+messaging:
+    to:
+        activemq:
+            host: localhost
+            port: 5672
+            url: amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port}
+            camelRoute:
+                destinationName: faker.event.activemq.test
+                toRoute: direct:${messaging.to.activemq.camelRoute.destinationName}
+
+        rabbitmq:
+            host: localhost
+            port: 5672
+            username: guest
+            password: guest
+            virtualHost: "/"
+            camelRoute:
+                destinationName: faker.event.rabbitmq.test
+                toRoute: direct:${messaging.to.rabbitmq.camelRoute.destinationName}
+
+        kafka:
+            host: localhost
+            port: 9092
+            camelRoute:
+                destinationName: faker.event.kafka.test
+                toRoute: direct:topic=${messaging.to.kafka.camelRoute.destinationName}

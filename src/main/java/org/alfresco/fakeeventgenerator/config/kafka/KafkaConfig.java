@@ -6,11 +6,10 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.amqp;
+package org.alfresco.fakeeventgenerator.config.kafka;
 
 import org.alfresco.fakeeventgenerator.CamelMessageProducer;
 import org.apache.camel.CamelContext;
-import org.apache.camel.component.amqp.AMQPConnectionDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,18 +17,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
+ * Auto-configuration of the Kafka route.
+ *
  * @author Jamal Kaabi-Mofrad
  */
 @Configuration
-@EnableConfigurationProperties(AmqpProperties.class)
-@Profile({ "default", "activeMQ" })
-public class AmqpConfig
+@EnableConfigurationProperties(KafkaProperties.class)
+@Profile(value = "kafka")
+public class KafkaConfig
 {
-    private final AmqpProperties properties;
+    private final KafkaProperties properties;
     private final CamelContext camelContext;
 
     @Autowired
-    public AmqpConfig(AmqpProperties properties, CamelContext camelContext)
+    public KafkaConfig(KafkaProperties properties, CamelContext camelContext)
     {
         this.properties = properties;
         this.camelContext = camelContext;
@@ -39,11 +40,5 @@ public class AmqpConfig
     public CamelMessageProducer camelMessageProducer()
     {
         return new CamelMessageProducer(camelContext, properties.getCamelRoute().getToRoute());
-    }
-
-    @Bean
-    public AMQPConnectionDetails amqpConnection()
-    {
-        return new AMQPConnectionDetails(properties.getUrl(), properties.getUsername(), properties.getPassword());
     }
 }

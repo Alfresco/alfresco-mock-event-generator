@@ -14,7 +14,6 @@ package org.alfresco.fakeeventgenerator.config;
 public class CamelRouteProperties
 {
     private String destinationName;
-    private String fromRoute;
     private String toRoute;
 
     public String getDestinationName()
@@ -25,16 +24,6 @@ public class CamelRouteProperties
     public void setDestinationName(String destinationName)
     {
         this.destinationName = destinationName;
-    }
-
-    public String getFromRoute()
-    {
-        return fromRoute;
-    }
-
-    public void setFromRoute(String fromRoute)
-    {
-        this.fromRoute = fromRoute;
     }
 
     public String getToRoute()

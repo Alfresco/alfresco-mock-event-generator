@@ -11,12 +11,13 @@ package org.alfresco.fakeeventgenerator;
 import java.util.Collections;
 import java.util.Map;
 
+import org.alfresco.event.databind.EventObjectMapperFactory;
+import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -25,19 +26,14 @@ public class CamelMessageProducer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
+    private static final ObjectMapper MAPPER = EventObjectMapperFactory.createInstance();
+
     private ProducerTemplate producer;
     private String endpoint;
-    private static ObjectMapper objectMapper;
 
-    static
+    public CamelMessageProducer(CamelContext camelContext, String endpoint)
     {
-        objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-    }
-
-    public CamelMessageProducer(ProducerTemplate producer, String endpoint)
-    {
-        this.producer = producer;
+        this.producer = camelContext.createProducerTemplate();
         this.endpoint = endpoint;
     }
 
@@ -48,13 +44,13 @@ public class CamelMessageProducer
 
     public void send(Object message, Map<String, Object> headers) throws Exception
     {
-        if (objectMapper != null && !(message instanceof String))
+        if (!(message instanceof String))
         {
-            message = objectMapper.writeValueAsString(message);
+            message = MAPPER.writeValueAsString(message);
         }
         if (LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("Sending message:" + message.toString()+" \nTo endpoint:"+endpoint);
+            LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
         }
         producer.sendBodyAndHeaders(endpoint, message, headers);
     }

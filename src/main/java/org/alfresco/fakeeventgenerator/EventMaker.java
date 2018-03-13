@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import org.alfresco.fakeeventgenerator.model.ContentAdded;
-import org.alfresco.fakeeventgenerator.model.Event;
-import org.alfresco.fakeeventgenerator.model.ProcessStarted;
+import org.alfresco.event.model.BaseEvent;
+import org.alfresco.event.model.BaseEventImpl;
+import org.alfresco.event.model.ContentCreatedEventImpl;
+import org.alfresco.event.model.ProcessStartedEventImpl;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -40,41 +41,34 @@ public class EventMaker
         BASE_EVENT()
         {
             @Override
-            public Event getEvent()
+            public BaseEvent getEvent()
             {
-                return new Event().setId(UUID.randomUUID().toString())
-                            .setPrincipal(getUsername())
-                            .setTimestamp(System.currentTimeMillis())
-                            .setResources(Collections.singletonList("urn:alfresco:base:event:" + UUID.randomUUID().toString()));
-
+                return new BaseEventImpl(UUID.randomUUID().toString(), "BASE_EVENT",
+                            System.currentTimeMillis(), "Repo", getUsername());
             }
         },
         CONTENT_CREATED()
         {
             @Override
-            public Event getEvent()
+            public BaseEvent getEvent()
             {
-                return new ContentAdded().setId(UUID.randomUUID().toString())
-                            .setPrincipal(getUsername())
-                            .setTimestamp(System.currentTimeMillis())
-                            .setResources(Collections.singletonList("urn:alfresco:content:nodeId:" + UUID.randomUUID().toString()));
-
+                return new ContentCreatedEventImpl(UUID.randomUUID().toString(), "CONTENT_CREATED",
+                            System.currentTimeMillis(), "Repo", getUsername(),
+                            Collections.singletonList("urn:alfresco:content:nodeId:" + UUID.randomUUID().toString()));
             }
         },
         PROCESS_STARTED()
         {
             @Override
-            public Event getEvent()
+            public BaseEvent getEvent()
             {
-                return new ProcessStarted().setId(UUID.randomUUID().toString())
-                            .setPrincipal(getUsername())
-                            .setTimestamp(System.currentTimeMillis())
-                            .setResources(Collections.singletonList("urn:alfresco:process:started:id:" + UUID.randomUUID().toString()));
-
+                return new ProcessStartedEventImpl(UUID.randomUUID().toString(), "PROCESS_STARTED",
+                            System.currentTimeMillis(), "Aps", getUsername(),
+                            Collections.singletonList("urn:alfresco:process:started:id:" + UUID.randomUUID().toString()));
             }
         };
 
-        public abstract Event getEvent();
+        public abstract BaseEvent getEvent();
     }
 
     private static String getUsername()
@@ -83,7 +77,7 @@ public class EventMaker
         return USER_LIST.get(index);
     }
 
-    public static Event getRandomEvent()
+    public static BaseEvent getRandomEvent()
     {
         int i = RANDOM.nextInt(EventInstance.values().length);
         return EventInstance.values()[i].getEvent();

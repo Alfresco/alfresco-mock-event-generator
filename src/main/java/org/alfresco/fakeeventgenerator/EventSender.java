@@ -8,7 +8,7 @@
 
 package org.alfresco.fakeeventgenerator;
 
-import org.alfresco.fakeeventgenerator.model.Event;
+import org.alfresco.event.model.BaseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,20 +39,28 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            Event event = EventMaker.getRandomEvent();
+            BaseEvent event = EventMaker.getRandomEvent();
             try
             {
-                camelMessageProducer.send(event);
+                sendEvent(event);
                 Thread.sleep(pauseTimeMillis);
             }
             catch (InterruptedException e)
             {
                 LOGGER.info(e.getMessage());
             }
-            catch (Exception ex)
-            {
-                LOGGER.error("Couldn't send the message.", ex);
-            }
+        }
+    }
+
+    public void sendEvent(BaseEvent event)
+    {
+        try
+        {
+            camelMessageProducer.send(event);
+        }
+        catch (Exception ex)
+        {
+            LOGGER.error("Couldn't send the message.", ex);
         }
     }
 }
