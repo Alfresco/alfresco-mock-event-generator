@@ -16,7 +16,9 @@ import java.util.UUID;
 
 import org.alfresco.event.model.BaseEvent;
 import org.alfresco.event.model.BaseEventImpl;
+import org.alfresco.event.model.ContentCreatedEvent;
 import org.alfresco.event.model.ContentCreatedEventImpl;
+import org.alfresco.event.model.ProcessStartedEvent;
 import org.alfresco.event.model.ProcessStartedEventImpl;
 
 /**
@@ -36,7 +38,7 @@ public class EventMaker
         USER_LIST.add("jmeatball");
     }
 
-    enum EventInstance
+    public enum EventInstance
     {
         BASE_EVENT()
         {
@@ -50,7 +52,7 @@ public class EventMaker
         CONTENT_CREATED()
         {
             @Override
-            public BaseEvent getEvent()
+            public ContentCreatedEvent getEvent()
             {
                 return new ContentCreatedEventImpl(UUID.randomUUID().toString(),
                             System.currentTimeMillis(), "Repo", getUsername(),
@@ -60,7 +62,7 @@ public class EventMaker
         PROCESS_STARTED()
         {
             @Override
-            public BaseEvent getEvent()
+            public ProcessStartedEvent getEvent()
             {
                 return new ProcessStartedEventImpl(UUID.randomUUID().toString(),
                             System.currentTimeMillis(), "Aps", getUsername(),
@@ -68,7 +70,7 @@ public class EventMaker
             }
         };
 
-        public abstract BaseEvent getEvent();
+        public abstract <T extends BaseEvent> T getEvent();
     }
 
     private static String getUsername()
