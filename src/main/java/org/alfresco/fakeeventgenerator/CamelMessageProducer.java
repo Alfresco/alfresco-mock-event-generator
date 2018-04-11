@@ -26,6 +26,8 @@ public class CamelMessageProducer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
+    public static final String HEADER_NAME = "typeClassName";
+
     private static final ObjectMapper MAPPER = EventObjectMapperFactory.createInstance();
 
     private ProducerTemplate producer;
@@ -39,7 +41,7 @@ public class CamelMessageProducer
 
     public void send(Object message) throws Exception
     {
-        send(message, Collections.emptyMap());
+        send(message, Collections.singletonMap(HEADER_NAME, message.getClass().getName()));
     }
 
     public void send(Object message, Map<String, Object> headers) throws Exception
