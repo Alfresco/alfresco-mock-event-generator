@@ -9,17 +9,21 @@
 package org.alfresco.fakeeventgenerator;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 import org.alfresco.event.model.BaseEvent;
-import org.alfresco.event.model.BaseEventImpl;
-import org.alfresco.event.model.ContentCreatedEvent;
-import org.alfresco.event.model.ContentCreatedEventImpl;
-import org.alfresco.event.model.ProcessStartedEvent;
-import org.alfresco.event.model.ProcessStartedEventImpl;
+import org.alfresco.event.model.BaseInternalEvent;
+import org.alfresco.event.model.BaseInternalEventImpl;
+import org.alfresco.event.model.ContentCreatedInternalEvent;
+import org.alfresco.event.model.ContentCreatedInternalEventImpl;
+import org.alfresco.event.model.ContentResourceImpl;
+import org.alfresco.event.model.ProcessResourceImpl;
+import org.alfresco.event.model.ProcessStartedInternalEvent;
+import org.alfresco.event.model.ProcessStartedInternalEventImpl;
+import org.alfresco.event.model.ResourceImpl;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -28,6 +32,7 @@ public class EventMaker
 {
     private static final Random RANDOM = new Random();
     private static final List<String> USER_LIST = new ArrayList<>();
+    private static final List<String> READER_AUTHORITIES_LIST = new ArrayList<>();
 
     static
     {
@@ -36,6 +41,10 @@ public class EventMaker
         USER_LIST.add("graymond");
         USER_LIST.add("jsixpack");
         USER_LIST.add("jmeatball");
+        READER_AUTHORITIES_LIST.add("GROUP_A");
+        READER_AUTHORITIES_LIST.add("GROUP_B");
+        READER_AUTHORITIES_LIST.add("GROUP_C");
+        READER_AUTHORITIES_LIST.add("GROUP_D");
     }
 
     public enum EventInstance
@@ -43,30 +52,43 @@ public class EventMaker
         BASE_EVENT()
         {
             @Override
-            public BaseEvent getEvent()
+            public BaseInternalEvent getEvent()
             {
-                return new BaseEventImpl(UUID.randomUUID().toString(), "BASE_EVENT",
-                            System.currentTimeMillis(), "Repo", getUsername());
+                return new BaseInternalEventImpl(UUID.randomUUID().toString(), "BASE_EVENT",
+                            System.currentTimeMillis(), getUsername(), 
+                            new ResourceImpl(UUID.randomUUID().toString(), "BaseType"),
+                            getReaderAuthorities(),
+                            null,
+                            null,
+                            "Repo");
             }
         },
         CONTENT_CREATED()
         {
             @Override
-            public ContentCreatedEvent getEvent()
+            public ContentCreatedInternalEvent getEvent()
             {
-                return new ContentCreatedEventImpl(UUID.randomUUID().toString(),
-                            System.currentTimeMillis(), "Repo", getUsername(),
-                            Collections.singletonList("urn:alfresco:content:nodeId:" + UUID.randomUUID().toString()));
+                return new ContentCreatedInternalEventImpl(UUID.randomUUID().toString(),
+                            System.currentTimeMillis(), getUsername(),
+                            new ContentResourceImpl(UUID.randomUUID().toString(), "Content", "cm:content"),
+                            getReaderAuthorities(),
+                            null,
+                            null,
+                            "ACS");
             }
         },
         PROCESS_STARTED()
         {
             @Override
-            public ProcessStartedEvent getEvent()
+            public ProcessStartedInternalEvent getEvent()
             {
-                return new ProcessStartedEventImpl(UUID.randomUUID().toString(),
-                            System.currentTimeMillis(), "Aps", getUsername(),
-                            Collections.singletonList("urn:alfresco:process:started:id:" + UUID.randomUUID().toString()));
+                return new ProcessStartedInternalEventImpl(UUID.randomUUID().toString(),
+                            System.currentTimeMillis(),getUsername(),
+                            new ProcessResourceImpl(UUID.randomUUID().toString(), "Process"),
+                            getReaderAuthorities(),
+                            null,
+                            null,
+                            "APS");
             }
         };
 
@@ -77,6 +99,19 @@ public class EventMaker
     {
         int index = RANDOM.nextInt(USER_LIST.size());
         return USER_LIST.get(index);
+    }
+
+    private static List<String> getReaderAuthorities()
+    {
+        HashSet<String> readerAuthorities = new HashSet<String>(READER_AUTHORITIES_LIST.size());
+        int numAuthorities = RANDOM.nextInt(READER_AUTHORITIES_LIST.size());
+        for (int i = 0; i < numAuthorities; i++)
+        {
+            int index = RANDOM.nextInt(READER_AUTHORITIES_LIST.size());
+            readerAuthorities.add(READER_AUTHORITIES_LIST.get(index));
+        }
+        
+        return new ArrayList<String>(readerAuthorities);
     }
 
     public static BaseEvent getRandomEvent()
