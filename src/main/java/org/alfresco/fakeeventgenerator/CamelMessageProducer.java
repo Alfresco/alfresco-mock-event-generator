@@ -10,6 +10,8 @@ package org.alfresco.fakeeventgenerator;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.apache.camel.CamelContext;
@@ -30,12 +32,15 @@ public class CamelMessageProducer
 
     private static final ObjectMapper MAPPER = EventObjectMapperFactory.createInstance();
 
-    private ProducerTemplate producer;
-    private String endpoint;
+    private final ProducerTemplate producer;
+    private final String endpoint;
+    private final ExecutorService executor;
 
     public CamelMessageProducer(CamelContext camelContext, String endpoint)
     {
         this.producer = camelContext.createProducerTemplate();
+        this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+        this.producer.setExecutorService(executor);
         this.endpoint = endpoint;
     }
 
@@ -55,5 +60,10 @@ public class CamelMessageProducer
             LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
         }
         producer.sendBodyAndHeaders(endpoint, message, headers);
+    }
+
+    public void shutdown()
+    {
+        executor.shutdown();
     }
 }
