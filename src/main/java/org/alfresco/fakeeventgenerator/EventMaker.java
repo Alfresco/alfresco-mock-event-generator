@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.alfresco.event.model.BaseEvent;
@@ -45,6 +46,7 @@ public class EventMaker
         READER_AUTHORITIES_LIST.add("GROUP_B");
         READER_AUTHORITIES_LIST.add("GROUP_C");
         READER_AUTHORITIES_LIST.add("GROUP_D");
+        READER_AUTHORITIES_LIST.add("GROUP_E");
     }
 
     public enum EventInstance
@@ -101,17 +103,21 @@ public class EventMaker
         return USER_LIST.get(index);
     }
 
-    private static List<String> getReaderAuthorities()
+    private static Set<String> getReaderAuthorities()
     {
         HashSet<String> readerAuthorities = new HashSet<String>(READER_AUTHORITIES_LIST.size());
         int numAuthorities = RANDOM.nextInt(READER_AUTHORITIES_LIST.size());
+        if (numAuthorities == 0)
+        {
+            numAuthorities = 1;
+        }
         for (int i = 0; i < numAuthorities; i++)
         {
             int index = RANDOM.nextInt(READER_AUTHORITIES_LIST.size());
             readerAuthorities.add(READER_AUTHORITIES_LIST.get(index));
         }
         
-        return new ArrayList<String>(readerAuthorities);
+        return readerAuthorities;
     }
 
     public static BaseEvent getRandomEvent()
