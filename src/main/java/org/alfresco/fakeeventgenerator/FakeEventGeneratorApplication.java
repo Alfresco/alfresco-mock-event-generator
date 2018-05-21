@@ -8,6 +8,10 @@
 
 package org.alfresco.fakeeventgenerator;
 
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -21,10 +25,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class FakeEventGeneratorApplication implements ApplicationRunner
 {
-    @Value("${faker.numOfEvents:10}")
+    private static final Logger LOGGER = LoggerFactory.getLogger(FakeEventGeneratorApplication.class);
+
+    @Value("${faker.scheduled.enabled:false}")
+    private boolean scheduledEnabled;
+
+    @Value("${faker.scheduled.periodInSeconds:1}")
+    private int periodInSeconds;
+
+    @Value("${faker.scheduled.numOfEventsPerSecond:1000}")
+    private int numOfEventsPerSecond;
+
+    @Value("${faker.scheduled.runForInSeconds:10}")
+    private int runForInSeconds;
+
+    @Value("${faker.fixed.numOfEvents:10}")
     private int numOfEvents;
 
-    @Value("${faker.pauseTimeInMillis:1000}")
+    @Value("${faker.fixed.pauseTimeInMillis:1000}")
     private long pauseTimeInMillis;
 
     @Value("${faker.startSendAtStartup:true}")
@@ -33,8 +51,8 @@ public class FakeEventGeneratorApplication implements ApplicationRunner
     @Value("${faker.shutdownAfterSend:true}")
     private boolean shutdownAfterSend;
 
-    @Value("${faker.waitBeforeShutdownInMillis:2000}")
-    private long waitBeforeShutdownInMillis;
+    @Value("${faker.waitBeforeShutdownInSeconds:2}")
+    private int waitBeforeShutdownInSeconds;
 
     private final EventSender messageSender;
 
@@ -54,14 +72,43 @@ public class FakeEventGeneratorApplication implements ApplicationRunner
     {
         if (startSendAtStartup)
         {
-            messageSender.sendRandomEvent(numOfEvents, pauseTimeInMillis);
+            if (scheduledEnabled)
+            {
+                messageSender.sendRandomEventAtFixedRate(periodInSeconds, numOfEventsPerSecond, runForInSeconds);
+                // Adding 2 seconds to wait for the last run to finish
+                TimeUnit.SECONDS.sleep(runForInSeconds + 2);
+                LOGGER.info(buildReport(true));
+            }
+            else
+            {
+                messageSender.sendRandomEvent(numOfEvents, pauseTimeInMillis);
+                LOGGER.info(buildReport(false));
+            }
 
             if (shutdownAfterSend)
             {
-                // Wait before shutting down
-                Thread.sleep(waitBeforeShutdownInMillis);
-                System.exit(0);
+                shutDown(waitBeforeShutdownInSeconds);
             }
         }
+    }
+
+    private void shutDown(int waitInSeconds) throws InterruptedException
+    {
+        TimeUnit.SECONDS.sleep(waitInSeconds);
+        messageSender.shutdown();
+        System.exit(0);
+    }
+
+    private String buildReport(boolean withAveragePerSecond)
+    {
+        StringBuilder sb = new StringBuilder(180);
+        sb.append("****************************************")
+                    .append("\n\tTotal events sent: ").append(messageSender.getTotalMessagesSent());
+        if (withAveragePerSecond)
+        {
+            sb.append("\n\tAverage per second: ").append(messageSender.getTotalMessagesSent() / runForInSeconds);
+        }
+        sb.append("\n ****************************************");
+        return sb.toString();
     }
 }
