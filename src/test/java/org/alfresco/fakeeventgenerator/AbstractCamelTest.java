@@ -11,7 +11,7 @@ package org.alfresco.fakeeventgenerator;
 import java.util.Arrays;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
-import org.alfresco.event.model.BaseEvent;
+import org.alfresco.event.model.internal.BaseInternalEvent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.builder.RouteBuilder;
@@ -49,8 +49,8 @@ public abstract class AbstractCamelTest
         configureRoute();
 
         // Generate random events
-        BaseEvent event1 = EventMaker.getRandomEvent();
-        BaseEvent event2 = EventMaker.getRandomEvent();
+        BaseInternalEvent event1 = EventMaker.getRandomEvent();
+        BaseInternalEvent event2 = EventMaker.getRandomEvent();
 
         // Set the expected messages
         mockEndpoint.expectedBodiesReceived(Arrays.asList(MAPPER.writeValueAsString(event1), MAPPER.writeValueAsString(event2)));

@@ -9,22 +9,25 @@
 package org.alfresco.fakeeventgenerator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import org.alfresco.event.model.BaseEvent;
-import org.alfresco.event.model.BaseInternalEvent;
-import org.alfresco.event.model.BaseInternalEventImpl;
-import org.alfresco.event.model.ContentCreatedInternalEvent;
-import org.alfresco.event.model.ContentCreatedInternalEventImpl;
 import org.alfresco.event.model.ContentResourceImpl;
 import org.alfresco.event.model.ProcessResourceImpl;
-import org.alfresco.event.model.ProcessStartedInternalEvent;
-import org.alfresco.event.model.ProcessStartedInternalEventImpl;
+import org.alfresco.event.model.Resource;
 import org.alfresco.event.model.ResourceImpl;
+import org.alfresco.event.model.internal.BaseInternalEvent;
+import org.alfresco.event.model.internal.BaseInternalEventImpl;
+import org.alfresco.event.model.internal.ContentInternalEvent;
+import org.alfresco.event.model.internal.ContentInternalEventImpl;
+import org.alfresco.event.model.internal.ProcessInternalEvent;
+import org.alfresco.event.model.internal.ProcessInternalEventImpl;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -34,6 +37,11 @@ public class EventMaker
     private static final Random RANDOM = new Random();
     private static final List<String> USER_LIST = new ArrayList<>();
     private static final List<String> READER_AUTHORITIES_LIST = new ArrayList<>();
+    private static final Map<String, Long> PRODUCER_INDICES = new HashMap<String, Long>();
+
+    private static final String PRODUCER_BASE = "BaseProducer";
+    private static final String PRODUCER_ACS = "ACS";
+    private static final String PRODUCER_APS = "APS";
 
     static
     {
@@ -47,6 +55,9 @@ public class EventMaker
         READER_AUTHORITIES_LIST.add("GROUP_C");
         READER_AUTHORITIES_LIST.add("GROUP_D");
         READER_AUTHORITIES_LIST.add("GROUP_E");
+        PRODUCER_INDICES.put(PRODUCER_BASE, 0L);
+        PRODUCER_INDICES.put(PRODUCER_ACS, 0L);
+        PRODUCER_INDICES.put(PRODUCER_APS, 0L);
     }
 
     public enum EventInstance
@@ -57,44 +68,48 @@ public class EventMaker
             public BaseInternalEvent getEvent()
             {
                 return new BaseInternalEventImpl(UUID.randomUUID().toString(), "BASE_EVENT",
+                            BaseEvent.class.getCanonicalName(),
                             System.currentTimeMillis(), getUsername(), 
                             new ResourceImpl(UUID.randomUUID().toString(), "BaseType"),
                             getReaderAuthorities(),
                             null,
                             null,
-                            "Repo");
+                            PRODUCER_BASE,
+                            getProducerIndex(PRODUCER_BASE));
             }
         },
         CONTENT_CREATED()
         {
             @Override
-            public ContentCreatedInternalEvent getEvent()
+            public ContentInternalEvent getEvent()
             {
-                return new ContentCreatedInternalEventImpl(UUID.randomUUID().toString(),
+                return new ContentInternalEventImpl(UUID.randomUUID().toString(), "CONTENT_CREATED",
                             System.currentTimeMillis(), getUsername(),
                             new ContentResourceImpl(UUID.randomUUID().toString(), "Content", "cm:content"),
                             getReaderAuthorities(),
                             null,
                             null,
-                            "ACS");
+                            PRODUCER_ACS,
+                            getProducerIndex(PRODUCER_ACS));
             }
         },
         PROCESS_STARTED()
         {
             @Override
-            public ProcessStartedInternalEvent getEvent()
+            public ProcessInternalEvent getEvent()
             {
-                return new ProcessStartedInternalEventImpl(UUID.randomUUID().toString(),
+                return new ProcessInternalEventImpl(UUID.randomUUID().toString(), "PROCESS_STARTED",
                             System.currentTimeMillis(),getUsername(),
                             new ProcessResourceImpl(UUID.randomUUID().toString(), "Process"),
                             getReaderAuthorities(),
                             null,
                             null,
-                            "APS");
+                            PRODUCER_APS,
+                            getProducerIndex(PRODUCER_APS));
             }
         };
 
-        public abstract <T extends BaseEvent> T getEvent();
+        public abstract <T extends BaseInternalEvent<R>, R extends Resource> T getEvent();
     }
 
     private static String getUsername()
@@ -120,9 +135,16 @@ public class EventMaker
         return readerAuthorities;
     }
 
-    public static BaseEvent getRandomEvent()
+    public static BaseInternalEvent getRandomEvent()
     {
         int i = RANDOM.nextInt(EventInstance.values().length);
         return EventInstance.values()[i].getEvent();
+    }
+    
+    public static Long getProducerIndex(String producer)
+    {
+        Long index = PRODUCER_INDICES.get(producer);
+        PRODUCER_INDICES.put(producer, index+1);
+        return index;
     }
 }
