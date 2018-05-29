@@ -67,15 +67,16 @@ public class EventMaker
             @Override
             public BaseInternalEvent getEvent()
             {
-                return new BaseInternalEventImpl(UUID.randomUUID().toString(), "BASE_EVENT",
+                return new BaseInternalEventImpl("BASE_EVENT",
                             BaseEvent.class.getCanonicalName(),
-                            System.currentTimeMillis(), getUsername(), 
+                            getUsername(), 
                             new ResourceImpl(UUID.randomUUID().toString(), "BaseType"),
                             getReaderAuthorities(),
                             null,
                             null,
                             PRODUCER_BASE,
-                            getProducerIndex(PRODUCER_BASE));
+                            getProducerIndex(PRODUCER_BASE),
+                            System.currentTimeMillis());
             }
         },
         CONTENT_CREATED()
@@ -83,14 +84,15 @@ public class EventMaker
             @Override
             public ContentInternalEvent getEvent()
             {
-                return new ContentInternalEventImpl(UUID.randomUUID().toString(), "CONTENT_CREATED",
-                            System.currentTimeMillis(), getUsername(),
+                return new ContentInternalEventImpl("CONTENT_CREATED",
+                            getUsername(),
                             new ContentResourceImpl(UUID.randomUUID().toString(), "Content", "cm:content"),
                             getReaderAuthorities(),
                             null,
                             null,
                             PRODUCER_ACS,
-                            getProducerIndex(PRODUCER_ACS));
+                            getProducerIndex(PRODUCER_ACS),
+                            System.currentTimeMillis());
             }
         },
         PROCESS_STARTED()
@@ -98,14 +100,15 @@ public class EventMaker
             @Override
             public ProcessInternalEvent getEvent()
             {
-                return new ProcessInternalEventImpl(UUID.randomUUID().toString(), "PROCESS_STARTED",
-                            System.currentTimeMillis(),getUsername(),
+                return new ProcessInternalEventImpl("PROCESS_STARTED",
+                            getUsername(),
                             new ProcessResourceImpl(UUID.randomUUID().toString(), "Process"),
                             getReaderAuthorities(),
                             null,
                             null,
                             PRODUCER_APS,
-                            getProducerIndex(PRODUCER_APS));
+                            getProducerIndex(PRODUCER_APS),
+                            System.currentTimeMillis());
             }
         };
 
