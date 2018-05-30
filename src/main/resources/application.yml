@@ -6,13 +6,22 @@ spring:
         active: activeMQ
 
 faker:
-    numOfEvents: 10
-    pauseTimeInMillis: 1000
     startSendAtStartup: true
     # This property will be ignored if 'startSendAtStartup' is set to false
     shutdownAfterSend: true
     # This property will be ignored if 'shutdownAfterSend' is set to false
-    waitBeforeShutdownInMillis: 2000
+    waitBeforeShutdownInSeconds: 2
+    scheduled:
+        enabled: false
+        # The period between successive executions in seconds
+        periodInSeconds: 1
+        # Number of events to send per second. Note: This is not guaranteed
+        numOfEventsPerSecond: 1000
+        # The duration of the task execution in seconds
+        runForInSeconds: 10
+    fixed:
+        numOfEvents: 10
+        pauseTimeInMillis: 1000
 
 messaging:
     to:
@@ -21,8 +30,8 @@ messaging:
             port: 5672
             url: failover:(amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port})?timeout=3000&startupMaxReconnectAttempts=0
             camelRoute:
-                destinationName: alfresco.faker.event.generator
-                toRoute: amqp:topic:${messaging.to.activemq.camelRoute.destinationName}
+                destinationName: alfresco.events.source
+                toRoute: amqpConnection:topic:${messaging.to.activemq.camelRoute.destinationName}
 
         rabbitmq:
             host: localhost
@@ -31,12 +40,12 @@ messaging:
             password: guest
             virtualHost: "/"
             camelRoute:
-                destinationName: alfresco.faker.event.generator
+                destinationName: alfresco.events.source
                 toRoute: rabbitmq://${messaging.to.rabbitmq.host}:${messaging.to.rabbitmq.port}/${messaging.to.rabbitmq.camelRoute.destinationName}?connectionFactory=#rabbitmqConnectionFactory
 
         kafka:
             host: localhost
             port: 9092
             camelRoute:
-                destinationName: alfresco.faker.event.generator
+                destinationName: alfresco.events.source
                 toRoute: kafka:${messaging.to.kafka.camelRoute.destinationName}?brokers=${messaging.to.kafka.host}:${messaging.to.kafka.port}
