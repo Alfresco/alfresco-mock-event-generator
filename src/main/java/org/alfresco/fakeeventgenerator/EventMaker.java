@@ -17,17 +17,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import org.alfresco.event.TestUtil;
 import org.alfresco.event.model.BaseEvent;
-import org.alfresco.event.model.ContentResourceImpl;
-import org.alfresco.event.model.ProcessResourceImpl;
+import org.alfresco.event.model.ContentResource;
+import org.alfresco.event.model.ProcessResource;
 import org.alfresco.event.model.Resource;
-import org.alfresco.event.model.ResourceImpl;
 import org.alfresco.event.model.internal.BaseInternalEvent;
-import org.alfresco.event.model.internal.BaseInternalEventImpl;
 import org.alfresco.event.model.internal.ContentInternalEvent;
-import org.alfresco.event.model.internal.ContentInternalEventImpl;
 import org.alfresco.event.model.internal.ProcessInternalEvent;
-import org.alfresco.event.model.internal.ProcessInternalEventImpl;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -67,10 +64,10 @@ public class EventMaker
             @Override
             public BaseInternalEvent getEvent()
             {
-                return new BaseInternalEventImpl("BASE_EVENT",
+                return new BaseInternalEvent("BASE_EVENT",
                             BaseEvent.class.getCanonicalName(),
                             getUsername(), 
-                            new ResourceImpl(UUID.randomUUID().toString(), "BaseType"),
+                            new Resource(UUID.randomUUID().toString(), "BaseType", null),
                             getReaderAuthorities(),
                             null,
                             null,
@@ -84,9 +81,9 @@ public class EventMaker
             @Override
             public ContentInternalEvent getEvent()
             {
-                return new ContentInternalEventImpl("CONTENT_CREATED",
+                return new ContentInternalEvent("CONTENT_CREATED",
                             getUsername(),
-                            new ContentResourceImpl(UUID.randomUUID().toString(), "Content", "cm:content"),
+                            new ContentResource(UUID.randomUUID().toString(), "Content", TestUtil.getTestNodeHierarchy(), "cm:content"),
                             getReaderAuthorities(),
                             null,
                             null,
@@ -100,9 +97,9 @@ public class EventMaker
             @Override
             public ProcessInternalEvent getEvent()
             {
-                return new ProcessInternalEventImpl("PROCESS_STARTED",
+                return new ProcessInternalEvent("PROCESS_STARTED",
                             getUsername(),
-                            new ProcessResourceImpl(UUID.randomUUID().toString(), "Process"),
+                            new ProcessResource(UUID.randomUUID().toString(), "Process", TestUtil.getTestProcessHierarchy()),
                             getReaderAuthorities(),
                             null,
                             null,
