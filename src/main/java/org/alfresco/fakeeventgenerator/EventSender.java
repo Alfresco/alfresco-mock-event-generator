@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.alfresco.event.model.BaseEvent;
+import org.alfresco.event.model.internal.BaseInternalEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            BaseEvent event = EventMaker.getRandomEvent();
+            BaseInternalEvent<?> event = EventMaker.getRandomEvent();
             try
             {
                 sendEvent(event);
@@ -95,7 +95,7 @@ public class EventSender
         senderHandler.cancel(true);
     }
 
-    public void sendEvent(BaseEvent event)
+    public void sendEvent(BaseInternalEvent<?> event)
     {
         try
         {

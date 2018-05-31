@@ -39,6 +39,10 @@
             <id>alfresco-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
         </repository>
+        <repository>
+            <id>alfresco-internal</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/internal</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -102,6 +106,12 @@
             <groupId>org.alfresco</groupId>
             <artifactId>alfresco-event-model</artifactId>
             <version>${dependency.event-model.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.alfresco</groupId>
+            <artifactId>alfresco-event-model</artifactId>
+            <version>${dependency.event-model.version}</version>
+            <type>test-jar</type>
         </dependency>
 
         <dependency>
