@@ -5,14 +5,11 @@
  * pursuant to a written agreement and any use of this program without such an
  * agreement is prohibited.
  */
-
 package org.alfresco.fakeeventgenerator.config.kafka;
 
-import org.alfresco.fakeeventgenerator.CamelMessageProducer;
-import org.apache.camel.CamelContext;
+import org.alfresco.fakeeventgenerator.config.RouteConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -24,21 +21,11 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @EnableConfigurationProperties(KafkaProperties.class)
 @Profile(value = "kafka")
-public class KafkaConfig
+public class KafkaConfig extends RouteConfig
 {
-    private final KafkaProperties properties;
-    private final CamelContext camelContext;
-
     @Autowired
-    public KafkaConfig(KafkaProperties properties, CamelContext camelContext)
+    public KafkaConfig(KafkaProperties properties)
     {
-        this.properties = properties;
-        this.camelContext = camelContext;
-    }
-
-    @Bean
-    public CamelMessageProducer camelMessageProducer()
-    {
-        return new CamelMessageProducer(camelContext, properties.getCamelRoute().getToRoute());
+        super(properties.getCamelRoute());
     }
 }

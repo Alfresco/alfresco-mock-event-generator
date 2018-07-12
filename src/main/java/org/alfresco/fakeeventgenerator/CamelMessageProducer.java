@@ -13,35 +13,39 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.alfresco.event.databind.EventObjectMapperFactory;
+import org.alfresco.fakeeventgenerator.config.CamelRouteProperties;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Jamal Kaabi-Mofrad
  */
+@Component
 public class CamelMessageProducer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
     public static final String HEADER_NAME = "typeClassName";
 
-    private static final ObjectMapper MAPPER = EventObjectMapperFactory.createInstance();
-
     private final ProducerTemplate producer;
     private final String endpoint;
     private final ExecutorService executor;
+    private ObjectMapper objectMapper;
 
-    public CamelMessageProducer(CamelContext camelContext, String endpoint)
+    @Autowired
+    public CamelMessageProducer(CamelContext camelContext, CamelRouteProperties routeProperties, ObjectMapper objectMapper)
     {
         this.producer = camelContext.createProducerTemplate();
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         this.producer.setExecutorService(executor);
-        this.endpoint = endpoint;
+        this.endpoint = routeProperties.getToRoute();
+        this.objectMapper = objectMapper;
     }
 
     public void send(Object message) throws Exception
@@ -53,7 +57,7 @@ public class CamelMessageProducer
     {
         if (!(message instanceof String))
         {
-            message = MAPPER.writeValueAsString(message);
+            message = objectMapper.writeValueAsString(message);
         }
         if (LOGGER.isDebugEnabled())
         {
@@ -65,5 +69,21 @@ public class CamelMessageProducer
     public void shutdown()
     {
         executor.shutdown();
+    }
+
+    /**
+     * For test purposes only
+     */
+    public void setObjectMapper(ObjectMapper objectMapper)
+    {
+        this.objectMapper = objectMapper;
+    }
+
+    /**
+     * For test purposes only
+     */
+    public ObjectMapper getObjectMapper()
+    {
+        return this.objectMapper;
     }
 }

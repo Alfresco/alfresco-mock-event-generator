@@ -2,6 +2,8 @@ server:
     port: 9090
 
 faker:
+    # Available type: INTERNAL_EVENT|ACS_RAW_EVENT
+    eventType: INTERNAL_EVENT
     startSendAtStartup: false
 
 messaging:

@@ -8,8 +8,7 @@
 
 package org.alfresco.fakeeventgenerator.config.amqp;
 
-import org.alfresco.fakeeventgenerator.CamelMessageProducer;
-import org.apache.camel.CamelContext;
+import org.alfresco.fakeeventgenerator.config.RouteConfig;
 import org.apache.camel.component.amqp.AMQPComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -26,22 +25,15 @@ import org.springframework.jms.connection.CachingConnectionFactory;
 @Configuration
 @EnableConfigurationProperties(AmqpProperties.class)
 @Profile({ "default", "activeMQ" })
-public class AmqpConfig
+public class AmqpConfig extends RouteConfig
 {
     private final AmqpProperties properties;
-    private final CamelContext camelContext;
 
     @Autowired
-    public AmqpConfig(AmqpProperties properties, CamelContext camelContext)
+    public AmqpConfig(AmqpProperties properties)
     {
+        super(properties.getCamelRoute());
         this.properties = properties;
-        this.camelContext = camelContext;
-    }
-
-    @Bean
-    public CamelMessageProducer camelMessageProducer()
-    {
-        return new CamelMessageProducer(camelContext, properties.getCamelRoute().getToRoute());
     }
 
     @Bean

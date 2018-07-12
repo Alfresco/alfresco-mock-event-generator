@@ -8,8 +8,7 @@
 
 package org.alfresco.fakeeventgenerator.config.rabbitmq;
 
-import org.alfresco.fakeeventgenerator.CamelMessageProducer;
-import org.apache.camel.CamelContext;
+import org.alfresco.fakeeventgenerator.config.RouteConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -24,22 +23,15 @@ import com.rabbitmq.client.ConnectionFactory;
 @Configuration
 @EnableConfigurationProperties(RabbitMQProperties.class)
 @Profile(value = "rabbitMQ")
-public class RabbitMQConfig
+public class RabbitMQConfig extends RouteConfig
 {
     private final RabbitMQProperties properties;
-    private final CamelContext camelContext;
 
     @Autowired
-    public RabbitMQConfig(RabbitMQProperties properties, CamelContext camelContext)
+    public RabbitMQConfig(RabbitMQProperties properties)
     {
+        super(properties.getCamelRoute());
         this.properties = properties;
-        this.camelContext = camelContext;
-    }
-
-    @Bean
-    public CamelMessageProducer camelMessageProducer()
-    {
-        return new CamelMessageProducer(camelContext, properties.getCamelRoute().getToRoute());
     }
 
     @Bean
