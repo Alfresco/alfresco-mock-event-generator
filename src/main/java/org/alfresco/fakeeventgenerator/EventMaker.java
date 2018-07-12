@@ -12,7 +12,6 @@ import static java.lang.System.currentTimeMillis;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -149,13 +148,13 @@ public class EventMaker
                             siteId,
                             getUUID(),
                             "cm:content",
-                            Collections.singletonList("/Company Home/Sites/" + siteId + "/documentLibrary/Docs/" + docName),
-                            Collections.singletonList(getUUID(6)),
+                            Stream.of("/Company Home/Sites/" + siteId + "/documentLibrary/Docs/" + docName).collect(Collectors.toList()),
+                            Stream.of(getUUID(6)).collect(Collectors.toList()),
                             getUsername(),
                             currentTimeMillis(),
                             null,
                             Stream.of("sys:localized", "sys:referenceable", "cm:auditable").collect(Collectors.toSet()),
-                            Collections.emptyMap());
+                            new HashMap<>());
             }
         },
         AUTHORITY_ADDED_TO_GROUP_EVENT()
@@ -191,12 +190,12 @@ public class EventMaker
                             .siteId(siteId)
                             .nodeId(getUUID())
                             .nodeType("cm:folder")
-                            .paths(Collections.singletonList("/Company Home/Sites/" + siteId + "/documentLibrary/Docs"))
-                            .parentNodeIds(Collections.singletonList(getUUID(5)))
+                            .paths(Stream.of("/Company Home/Sites/" + siteId + "/documentLibrary/Docs").collect(Collectors.toList()))
+                            .parentNodeIds(Stream.of(getUUID(5)).collect(Collectors.toList()))
                             .username(getUsername())
                             .nodeModificationTime(currentTimeMillis())
                             .aspects(Stream.of("sys:localized", "cm:titled", "sys:referenceable", "cm:auditable").collect(Collectors.toSet()))
-                            .nodeProperties(Collections.emptyMap())
+                            .nodeProperties(new HashMap<>())
                             .build();
             }
         },
