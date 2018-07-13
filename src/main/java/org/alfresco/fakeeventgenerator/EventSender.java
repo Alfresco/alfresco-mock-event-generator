@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.alfresco.event.model.internal.BaseInternalEvent;
+import org.alfresco.fakeeventgenerator.config.EventConfig.EventTypeCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +30,17 @@ public class EventSender
     private static final Logger LOGGER = LoggerFactory.getLogger(EventSender.class);
 
     private final CamelMessageProducer camelMessageProducer;
+    private final EventTypeCategory eventTypeCategory;
     private final ScheduledExecutorService executorService;
     private final AtomicInteger totalMessageCounter;
 
     @Autowired
-    public EventSender(CamelMessageProducer camelMessageProducer)
+    public EventSender(CamelMessageProducer camelMessageProducer, EventTypeCategory eventTypeCategory)
     {
         this.camelMessageProducer = camelMessageProducer;
-        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+        this.eventTypeCategory = eventTypeCategory;
+        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime()
+                    .availableProcessors() + 1);
         this.totalMessageCounter = new AtomicInteger(0);
     }
 
@@ -50,10 +53,9 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            BaseInternalEvent<?> event = EventMaker.getRandomEvent();
             try
             {
-                sendEvent(event);
+                sendEvent(eventTypeCategory.getRandomEvent());
                 Thread.sleep(pauseTimeMillis);
             }
             catch (InterruptedException e)
@@ -84,7 +86,7 @@ public class EventSender
         int counter = 0;
         while (!cancelled.get() && counter < numOfEventsPerSecond)
         {
-            sendEvent(EventMaker.getRandomEvent());
+            sendEvent(eventTypeCategory.getRandomEvent());
             counter++;
         }
     }
@@ -95,7 +97,7 @@ public class EventSender
         senderHandler.cancel(true);
     }
 
-    public void sendEvent(BaseInternalEvent<?> event)
+    public void sendEvent(Object event)
     {
         try
         {

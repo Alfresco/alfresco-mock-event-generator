@@ -6,6 +6,8 @@ spring:
         active: activeMQ
 
 faker:
+    # Available type: INTERNAL_EVENT|ACS_RAW_EVENT
+    eventType: ACS_RAW_EVENT
     startSendAtStartup: true
     # This property will be ignored if 'startSendAtStartup' is set to false
     shutdownAfterSend: true
