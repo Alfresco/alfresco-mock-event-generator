@@ -9,7 +9,7 @@ package org.alfresco.fakeeventgenerator.config;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.internal.InternalEvent;
-import org.alfresco.events.types.RepositoryEvent;
+import org.alfresco.sync.events.types.RepositoryEvent;
 import org.alfresco.fakeeventgenerator.EventMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

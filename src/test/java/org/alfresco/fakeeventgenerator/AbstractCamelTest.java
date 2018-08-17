@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.internal.InternalEvent;
-import org.alfresco.events.types.RepositoryEvent;
+import org.alfresco.sync.events.types.RepositoryEvent;
 import org.alfresco.fakeeventgenerator.config.EventConfig;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;

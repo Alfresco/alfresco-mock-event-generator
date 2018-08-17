@@ -24,15 +24,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.alfresco.event.TestUtil;
-import org.alfresco.event.model.NodeResourceV1;
-import org.alfresco.event.model.ProcessResourceV1;
+import org.alfresco.event.model.acs.NodeResourceV1;
+import org.alfresco.event.model.activiti.ProcessResourceV1;
 import org.alfresco.event.model.ResourceV1;
 import org.alfresco.event.model.internal.InternalEvent;
-import org.alfresco.events.types.NodeAddedEvent;
-import org.alfresco.events.types.RepositoryEvent;
-import org.alfresco.events.types.TransactionCommittedEvent;
-import org.alfresco.events.types.authority.AuthorityAddedToGroupEvent;
-import org.alfresco.events.types.permission.LocalPermissionGrantedEvent;
+import org.alfresco.sync.events.types.NodeAddedEvent;
+import org.alfresco.sync.events.types.RepositoryEvent;
+import org.alfresco.sync.events.types.TransactionCommittedEvent;
+import org.alfresco.sync.events.types.authority.AuthorityAddedToGroupEvent;
+import org.alfresco.sync.events.types.permission.LocalPermissionGrantedEvent;
 
 /**
  * @author Jamal Kaabi-Mofrad
