@@ -6,16 +6,15 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator;
+package org.alfresco.mockeventgenerator;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.alfresco.fakeeventgenerator.config.EventConfig.EventTypeCategory;
+import org.alfresco.mockeventgenerator.config.EventConfig.EventTypeCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ public class EventSender
     private final CamelMessageProducer camelMessageProducer;
     private final EventTypeCategory eventTypeCategory;
     private final ScheduledExecutorService executorService;
-    private final AtomicInteger totalMessageCounter;
 
     @Autowired
     public EventSender(CamelMessageProducer camelMessageProducer, EventTypeCategory eventTypeCategory)
@@ -41,7 +39,6 @@ public class EventSender
         this.eventTypeCategory = eventTypeCategory;
         this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime()
                     .availableProcessors() + 1);
-        this.totalMessageCounter = new AtomicInteger(0);
     }
 
     public void sendRandomEvent(int numOfEvents)
@@ -115,7 +112,6 @@ public class EventSender
                 throw new RuntimeException(ex);
             }
         }
-        totalMessageCounter.incrementAndGet();
     }
 
     public void shutdown()
@@ -126,7 +122,12 @@ public class EventSender
 
     public int getTotalMessagesSent()
     {
-        return totalMessageCounter.get();
+        return camelMessageProducer.getTotalMessagesSent();
+    }
+
+    public boolean isAggregatedEvents()
+    {
+        return camelMessageProducer.isAggregated();
     }
 
     /**

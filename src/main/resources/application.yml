@@ -1,13 +1,14 @@
 server:
-  port: 9090
+  port: 9080
 
 spring:
     profiles:
+        # Available profiles: activeMQ|rabbitMQ|kafka
         active: activeMQ
 
-faker:
-    # Available type: INTERNAL_EVENT|ACS_RAW_EVENT
-    eventType: ACS_RAW_EVENT
+generator:
+    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT
+    eventCategory: ACS_PUBLIC_EVENT
     startSendAtStartup: true
     # This property will be ignored if 'startSendAtStartup' is set to false
     shutdownAfterSend: true
@@ -42,8 +43,8 @@ messaging:
             password: guest
             virtualHost: "/"
             camelRoute:
-                destinationName: alfresco.events.source
-                toRoute: rabbitmq://${messaging.to.rabbitmq.host}:${messaging.to.rabbitmq.port}/${messaging.to.rabbitmq.camelRoute.destinationName}?connectionFactory=#rabbitmqConnectionFactory
+                destinationName: engineEvents
+                toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoute.destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
 
         kafka:
             host: localhost

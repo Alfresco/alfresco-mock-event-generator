@@ -6,9 +6,9 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.rabbitmq;
+package org.alfresco.mockeventgenerator.config.rabbitmq;
 
-import org.alfresco.fakeeventgenerator.config.RouteConfig;
+import org.alfresco.mockeventgenerator.config.RouteConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

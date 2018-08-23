@@ -6,7 +6,7 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config;
+package org.alfresco.mockeventgenerator.config;
 
 /**
  * @author Jamal Kaabi-Mofrad

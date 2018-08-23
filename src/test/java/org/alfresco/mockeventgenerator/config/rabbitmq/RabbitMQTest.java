@@ -6,12 +6,12 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.rabbitmq;
+package org.alfresco.mockeventgenerator.config.rabbitmq;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.alfresco.fakeeventgenerator.AbstractCamelTest;
+import org.alfresco.mockeventgenerator.AbstractCamelTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("rabbitMQ")
 public class RabbitMQTest extends AbstractCamelTest
 {
-    private static final String TOPIC_NAME = "faker.event.rabbitmq.test";
+    private static final String TOPIC_NAME = "generator.event.rabbitmq.test";
 
     @Autowired
     private RabbitMQProperties properties;

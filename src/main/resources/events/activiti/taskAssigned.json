@@ -1,0 +1,25 @@
+[
+  {
+    "eventType": "TASK_ASSIGNED",
+    "id": "ed88df66-b0b2-4685-aca6-b7c4cad27752",
+    "timestamp": 1534156841285,
+    "entity": {
+      "id": "3688b0ad-9ee4-11e8-9079-0242ac110008",
+      "name": "Perform action",
+      "status": "ASSIGNED",
+      "assignee": "hruser",
+      "createdDate": "2018-08-13T10:32:43.940+0000",
+      "claimedDate": "2018-08-13T10:40:41.281+0000",
+      "priority": 50,
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "processInstanceId": "3680c167-9ee4-11e8-9079-0242ac110008"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "3688b0ad-9ee4-11e8-9079-0242ac110008"
+  }
+]

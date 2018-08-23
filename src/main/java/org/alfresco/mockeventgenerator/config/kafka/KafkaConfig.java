@@ -5,9 +5,9 @@
  * pursuant to a written agreement and any use of this program without such an
  * agreement is prohibited.
  */
-package org.alfresco.fakeeventgenerator.config.kafka;
+package org.alfresco.mockeventgenerator.config.kafka;
 
-import org.alfresco.fakeeventgenerator.config.RouteConfig;
+import org.alfresco.mockeventgenerator.config.RouteConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

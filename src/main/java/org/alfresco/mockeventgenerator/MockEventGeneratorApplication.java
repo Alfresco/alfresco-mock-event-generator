@@ -6,7 +6,7 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator;
+package org.alfresco.mockeventgenerator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,48 +23,48 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Jamal Kaabi-Mofrad
  */
 @SpringBootApplication
-public class FakeEventGeneratorApplication implements ApplicationRunner
+public class MockEventGeneratorApplication implements ApplicationRunner
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FakeEventGeneratorApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockEventGeneratorApplication.class);
 
-    @Value("${faker.scheduled.enabled:false}")
+    @Value("${generator.scheduled.enabled:false}")
     private boolean scheduledEnabled;
 
-    @Value("${faker.scheduled.periodInSeconds:1}")
+    @Value("${generator.scheduled.periodInSeconds:1}")
     private int periodInSeconds;
 
-    @Value("${faker.scheduled.numOfEventsPerSecond:1000}")
+    @Value("${generator.scheduled.numOfEventsPerSecond:1000}")
     private int numOfEventsPerSecond;
 
-    @Value("${faker.scheduled.runForInSeconds:10}")
+    @Value("${generator.scheduled.runForInSeconds:10}")
     private int runForInSeconds;
 
-    @Value("${faker.fixed.numOfEvents:10}")
+    @Value("${generator.fixed.numOfEvents:10}")
     private int numOfEvents;
 
-    @Value("${faker.fixed.pauseTimeInMillis:1000}")
+    @Value("${generator.fixed.pauseTimeInMillis:1000}")
     private long pauseTimeInMillis;
 
-    @Value("${faker.startSendAtStartup:true}")
+    @Value("${generator.startSendAtStartup:true}")
     private boolean startSendAtStartup;
 
-    @Value("${faker.shutdownAfterSend:true}")
+    @Value("${generator.shutdownAfterSend:true}")
     private boolean shutdownAfterSend;
 
-    @Value("${faker.waitBeforeShutdownInSeconds:2}")
+    @Value("${generator.waitBeforeShutdownInSeconds:2}")
     private int waitBeforeShutdownInSeconds;
 
     private final EventSender messageSender;
 
     @Autowired
-    public FakeEventGeneratorApplication(EventSender messageSender)
+    public MockEventGeneratorApplication(EventSender messageSender)
     {
         this.messageSender = messageSender;
     }
 
     public static void main(String[] args)
     {
-        SpringApplication.run(FakeEventGeneratorApplication.class, args);
+        SpringApplication.run(MockEventGeneratorApplication.class, args);
     }
 
     @Override
@@ -108,7 +108,8 @@ public class FakeEventGeneratorApplication implements ApplicationRunner
         {
             sb.append("\n\tAverage per second: ").append(messageSender.getTotalMessagesSent() / runForInSeconds);
         }
-        sb.append("\n ****************************************");
+        sb.append("\n\tEvents were aggregated: ").append(messageSender.isAggregatedEvents());
+        sb.append("\n****************************************");
         return sb.toString();
     }
 }

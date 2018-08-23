@@ -6,14 +6,17 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator;
+package org.alfresco.mockeventgenerator;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.alfresco.fakeeventgenerator.config.CamelRouteProperties;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.slf4j.Logger;
@@ -31,11 +34,11 @@ public class CamelMessageProducer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
-    public static final String HEADER_NAME = "typeClassName";
-
     private final ProducerTemplate producer;
     private final String endpoint;
     private final ExecutorService executor;
+    private final AtomicInteger totalMessageCounter;
+    private final AtomicBoolean aggregated;
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -45,15 +48,38 @@ public class CamelMessageProducer
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         this.producer.setExecutorService(executor);
         this.endpoint = routeProperties.getToRoute();
+        this.totalMessageCounter = new AtomicInteger(0);
+        this.aggregated = new AtomicBoolean(false);
         this.objectMapper = objectMapper;
     }
 
     public void send(Object message) throws Exception
     {
-        send(message, Collections.singletonMap(HEADER_NAME, message.getClass().getName()));
+        send(message, Collections.emptyMap());
     }
 
     public void send(Object message, Map<String, Object> headers) throws Exception
+    {
+        if (message instanceof Collection)
+        {
+            aggregated.set(true);
+            Collection<?> msgs = (Collection<?>) message;
+            for (Object obj : msgs)
+            {
+                sendImpl(obj, headers);
+            }
+        }
+        else
+        {
+            if (message instanceof String && ((String) message).startsWith("["))
+            {
+                aggregated.set(true);
+            }
+            sendImpl(message, headers);
+        }
+    }
+
+    private void sendImpl(Object message, Map<String, Object> headers) throws Exception
     {
         if (!(message instanceof String))
         {
@@ -64,11 +90,22 @@ public class CamelMessageProducer
             LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
         }
         producer.sendBodyAndHeaders(endpoint, message, headers);
+        totalMessageCounter.incrementAndGet();
     }
 
     public void shutdown()
     {
         executor.shutdown();
+    }
+
+    public int getTotalMessagesSent()
+    {
+        return totalMessageCounter.get();
+    }
+
+    public boolean isAggregated()
+    {
+        return aggregated.get();
     }
 
     /**

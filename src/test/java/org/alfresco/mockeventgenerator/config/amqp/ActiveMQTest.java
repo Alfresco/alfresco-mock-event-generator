@@ -6,13 +6,13 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.amqp;
+package org.alfresco.mockeventgenerator.config.amqp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.alfresco.fakeeventgenerator.AbstractCamelTest;
+import org.alfresco.mockeventgenerator.AbstractCamelTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("activeMQ")
 public class ActiveMQTest extends AbstractCamelTest
 {
-    private static final String TOPIC_NAME = "faker.event.activemq.test";
+    private static final String TOPIC_NAME = "generator.event.activemq.test";
 
     @Autowired
     private AmqpProperties properties;

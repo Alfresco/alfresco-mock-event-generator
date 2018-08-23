@@ -6,9 +6,9 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.amqp;
+package org.alfresco.mockeventgenerator.config.amqp;
 
-import org.alfresco.fakeeventgenerator.config.RouteConfig;
+import org.alfresco.mockeventgenerator.config.RouteConfig;
 import org.apache.camel.component.amqp.AMQPComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 import org.apache.qpid.jms.JmsConnectionFactory;
