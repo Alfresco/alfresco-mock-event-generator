@@ -216,7 +216,7 @@ public class EventMaker
         public abstract EventV1<? extends ResourceV1> getEvent();
     }
 
-    public enum RawAcivitiEventInstance
+    public enum RawActivitiEventInstance
     {
         PROCESS_CREATED()
         {
@@ -286,7 +286,7 @@ public class EventMaker
         public abstract String getEvent();
     }
 
-    public enum PublicAcivitiEventInstance
+    public enum PublicActivitiEventInstance
     {
         PROCESS_CREATED()
         {
@@ -637,13 +637,13 @@ public class EventMaker
 
     public static String getRandomRawActivitiEvent()
     {
-        int i = RANDOM.nextInt(RawAcivitiEventInstance.values().length);
-        return RawAcivitiEventInstance.values()[i].getEvent();
+        int i = RANDOM.nextInt(RawActivitiEventInstance.values().length);
+        return RawActivitiEventInstance.values()[i].getEvent();
     }
 
     public static List<EventV1<? extends ResourceV1>> getRandomPublicActivitiEvent()
     {
-        int i = RANDOM.nextInt(PublicAcivitiEventInstance.values().length);
-        return PublicAcivitiEventInstance.values()[i].getEvents();
+        int i = RANDOM.nextInt(PublicActivitiEventInstance.values().length);
+        return PublicActivitiEventInstance.values()[i].getEvents();
     }
 }

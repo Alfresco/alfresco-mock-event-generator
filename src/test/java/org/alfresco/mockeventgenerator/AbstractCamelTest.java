@@ -15,7 +15,7 @@ import java.util.List;
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.EventV1;
 import org.alfresco.event.model.ResourceV1;
-import org.alfresco.mockeventgenerator.EventMaker.PublicAcivitiEventInstance;
+import org.alfresco.mockeventgenerator.EventMaker.PublicActivitiEventInstance;
 import org.alfresco.mockeventgenerator.config.EventConfig;
 import org.alfresco.sync.events.types.RepositoryEvent;
 import org.apache.camel.CamelContext;
@@ -151,8 +151,8 @@ public abstract class AbstractCamelTest
         camelMessageProducer.setObjectMapper(PUBLIC_OBJECT_MAPPER);
 
         // Generate random events
-        List<EventV1<? extends ResourceV1>> events1 = PublicAcivitiEventInstance.PROCESS_CREATED.getEvents();
-        List<EventV1<? extends ResourceV1>> events2 = PublicAcivitiEventInstance.TASK_ASSIGNED.getEvents();
+        List<EventV1<? extends ResourceV1>> events1 = PublicActivitiEventInstance.PROCESS_CREATED.getEvents();
+        List<EventV1<? extends ResourceV1>> events2 = PublicActivitiEventInstance.TASK_ASSIGNED.getEvents();
 
         List<EventV1<? extends ResourceV1>> allEvents = new ArrayList<>(events1);
         allEvents.addAll(events2);
