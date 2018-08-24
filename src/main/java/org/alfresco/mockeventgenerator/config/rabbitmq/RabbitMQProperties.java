@@ -6,9 +6,9 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.rabbitmq;
+package org.alfresco.mockeventgenerator.config.rabbitmq;
 
-import org.alfresco.fakeeventgenerator.config.CamelRouteProperties;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

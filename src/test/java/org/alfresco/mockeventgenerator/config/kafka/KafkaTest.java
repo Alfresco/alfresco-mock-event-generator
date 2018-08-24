@@ -6,12 +6,12 @@
  * agreement is prohibited.
  */
 
-package org.alfresco.fakeeventgenerator.config.kafka;
+package org.alfresco.mockeventgenerator.config.kafka;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.alfresco.fakeeventgenerator.AbstractCamelTest;
+import org.alfresco.mockeventgenerator.AbstractCamelTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("kafka")
 public class KafkaTest extends AbstractCamelTest
 {
-    private static final String TOPIC_NAME = "faker.event.kafka.test";
+    private static final String TOPIC_NAME = "generator.event.kafka.test";
 
     @Autowired
     private KafkaProperties properties;

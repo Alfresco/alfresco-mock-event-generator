@@ -5,12 +5,15 @@
  * pursuant to a written agreement and any use of this program without such an
  * agreement is prohibited.
  */
-package org.alfresco.fakeeventgenerator.config;
+package org.alfresco.mockeventgenerator.config;
+
+import java.util.List;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
-import org.alfresco.event.model.internal.InternalEvent;
+import org.alfresco.event.model.EventV1;
+import org.alfresco.event.model.ResourceV1;
+import org.alfresco.mockeventgenerator.EventMaker;
 import org.alfresco.sync.events.types.RepositoryEvent;
-import org.alfresco.fakeeventgenerator.EventMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,18 +30,18 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @Configuration
 public class EventConfig
 {
-    private String eventTypeStr;
+    private String eventCategoryStr;
 
     @Autowired
-    public EventConfig(@Value("${faker.eventType}") String eventTypeStr)
+    public EventConfig(@Value("${generator.eventCategory}") String eventCategoryStr)
     {
-        this.eventTypeStr = eventTypeStr;
+        this.eventCategoryStr = eventCategoryStr;
     }
 
     @Bean
     public EventTypeCategory eventTypeCategory()
     {
-        return EventTypeCategory.valueOf(eventTypeStr);
+        return EventTypeCategory.valueOf(eventCategoryStr);
     }
 
     @Bean
@@ -47,13 +50,23 @@ public class EventConfig
         EventTypeCategory eventTypeCategory = eventTypeCategory();
         switch (eventTypeCategory)
         {
-            case INTERNAL_EVENT:
-            {
-                return EventObjectMapperFactory.createInstance();
-            }
             case ACS_RAW_EVENT:
             {
                 return createAcsRawEventObjectMapper();
+            }
+            case ACS_PUBLIC_EVENT:
+            {
+                return EventObjectMapperFactory.createInstance();
+            }
+            case ACTIVITI_RAW_EVENT:
+            {
+                // This won't be used, as the content is String. We are returning a default
+                // ObjectMapper to avoid chalking for null mapper. See CamelMessageProducer#send() method.
+                return new ObjectMapper();
+            }
+            case ACTIVITI_PUBLIC_EVENT:
+            {
+                return EventObjectMapperFactory.createInstance();
             }
             default:
             {
@@ -76,20 +89,36 @@ public class EventConfig
      */
     public enum EventTypeCategory
     {
-        INTERNAL_EVENT()
-        {
-            @Override
-            public InternalEvent getRandomEvent()
-            {
-                return EventMaker.getRandomInternalEvent();
-            }
-        },
         ACS_RAW_EVENT()
         {
             @Override
             public RepositoryEvent getRandomEvent()
             {
                 return EventMaker.getRandomRawAcsEvent();
+            }
+        },
+        ACS_PUBLIC_EVENT()
+        {
+            @Override
+            public EventV1<? extends ResourceV1> getRandomEvent()
+            {
+                return EventMaker.getRandomPublicAcsEvent();
+            }
+        },
+        ACTIVITI_RAW_EVENT()
+        {
+            @Override
+            public String getRandomEvent()
+            {
+                return EventMaker.getRandomRawActivitiEvent();
+            }
+        },
+        ACTIVITI_PUBLIC_EVENT()
+        {
+            @Override
+            public List<EventV1<? extends ResourceV1>> getRandomEvent()
+            {
+                return EventMaker.getRandomPublicActivitiEvent();
             }
         };
 

@@ -1,9 +1,9 @@
 server:
     port: 9090
 
-faker:
-    # Available type: INTERNAL_EVENT|ACS_RAW_EVENT
-    eventType: INTERNAL_EVENT
+generator:
+    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT
+    eventCategory: ACS_RAW_EVENT
     startSendAtStartup: false
 
 messaging:
@@ -13,7 +13,7 @@ messaging:
             port: 5672
             url: amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port}
             camelRoute:
-                destinationName: faker.event.activemq.test
+                destinationName: generator.event.activemq.test
                 toRoute: direct:${messaging.to.activemq.camelRoute.destinationName}
 
         rabbitmq:
@@ -23,12 +23,12 @@ messaging:
             password: guest
             virtualHost: "/"
             camelRoute:
-                destinationName: faker.event.rabbitmq.test
+                destinationName: generator.event.rabbitmq.test
                 toRoute: direct:${messaging.to.rabbitmq.camelRoute.destinationName}
 
         kafka:
             host: localhost
             port: 9092
             camelRoute:
-                destinationName: faker.event.kafka.test
+                destinationName: generator.event.kafka.test
                 toRoute: direct:topic=${messaging.to.kafka.camelRoute.destinationName}

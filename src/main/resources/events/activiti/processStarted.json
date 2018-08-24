@@ -1,0 +1,218 @@
+[
+  {
+    "eventType": "PROCESS_CREATED",
+    "id": "40ea9d40-f9e3-4c0f-ad81-7b6b6bfeed9f",
+    "timestamp": 1534156668660,
+    "entity": {
+      "id": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "processDefinitionKey": "SimpleProcess",
+      "initiator": "hruser",
+      "startDate": "2018-08-13T10:37:48.660+0000",
+      "status": "RUNNING"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "VARIABLE_CREATED",
+    "id": "64744214-37cc-4a8a-a9e7-45663f16ea26",
+    "timestamp": 1534156668660,
+    "entity": {
+      "name": "firstName",
+      "type": "string",
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "value": "Paulo",
+      "taskVariable": false
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "firstName"
+  },
+  {
+    "eventType": "VARIABLE_CREATED",
+    "id": "fe251cbe-df8c-47e9-b144-0a9373bc23bc",
+    "timestamp": 1534156668660,
+    "entity": {
+      "name": "lastName",
+      "type": "string",
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "value": "Silva",
+      "taskVariable": false
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "lastName"
+  },
+  {
+    "eventType": "VARIABLE_CREATED",
+    "id": "c2e2ad7e-7d37-4bfe-a5e6-52bcebee6fe9",
+    "timestamp": 1534156668660,
+    "entity": {
+      "name": "age",
+      "type": "integer",
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "value": 25,
+      "taskVariable": false
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "age"
+  },
+  {
+    "eventType": "PROCESS_STARTED",
+    "id": "bd7cd5ef-26fd-4b39-b681-10d4e151d4f6",
+    "timestamp": 1534156668661,
+    "entity": {
+      "id": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "processDefinitionKey": "SimpleProcess",
+      "initiator": "hruser",
+      "startDate": "2018-08-13T10:37:48.660+0000",
+      "status": "RUNNING"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "ACTIVITY_STARTED",
+    "id": "01eb57b1-5aee-49ad-8bcb-3cafef18a2bc",
+    "timestamp": 1534156668661,
+    "entity": {
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "activityType": "startEvent",
+      "elementId": "startEvent1"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+    "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+    "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "ACTIVITY_COMPLETED",
+    "id": "8dcd30a9-4abf-4564-a11a-21c36df8cbae",
+    "timestamp": 1534156668661,
+    "entity": {
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "activityType": "startEvent",
+      "elementId": "startEvent1"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+    "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+    "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "SEQUENCE_FLOW_TAKEN",
+    "id": "513ef0b4-f2aa-483e-bba4-affe562e2292",
+    "timestamp": 1534156668661,
+    "entity": {
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "sourceActivityElementId": "startEvent1",
+      "sourceActivityType": "org.activiti.bpmn.model.StartEvent",
+      "targetActivityElementId": "sid-CDFE7219-4627-43E9-8CA8-866CC38EBA94",
+      "targetActivityName": "Perform action",
+      "targetActivityType": "org.activiti.bpmn.model.UserTask"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "ACTIVITY_STARTED",
+    "id": "9111b052-1e1c-40ce-991c-9aeff59862fa",
+    "timestamp": 1534156668661,
+    "entity": {
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "activityName": "Perform action",
+      "activityType": "userTask",
+      "elementId": "sid-CDFE7219-4627-43E9-8CA8-866CC38EBA94"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec285b4f-9ee4-11e8-9079-0242ac110008",
+    "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+    "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+  },
+  {
+    "eventType": "TASK_CANDIDATE_GROUP_ADDED",
+    "id": "76f5ef22-71c3-4886-a26a-f2004ceb2f5d",
+    "timestamp": 1534156668661,
+    "entity": {
+      "taskId": "ec288265-9ee4-11e8-9079-0242ac110008",
+      "groupId": "hr"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "hr"
+  },
+  {
+    "eventType": "TASK_CREATED",
+    "id": "13062464-810b-4efe-b62b-a5fd045df27a",
+    "timestamp": 1534156668662,
+    "entity": {
+      "id": "ec288265-9ee4-11e8-9079-0242ac110008",
+      "name": "Perform action",
+      "status": "CREATED",
+      "createdDate": "2018-08-13T10:37:48.661+0000",
+      "priority": 50,
+      "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+      "processInstanceId": "ec285b4f-9ee4-11e8-9079-0242ac110008"
+    },
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "ec288265-9ee4-11e8-9079-0242ac110008"
+  }
+]
