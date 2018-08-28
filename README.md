@@ -57,6 +57,27 @@ To start the application with Kafka:
 Executing any of the above commands will start the application, connect to the given broker and send **10** messages with a pause time of **1** second between each message.
 The messages are sent to the defined topic. See _**camelRoute.destinationName**_ in the application.yml file.
 
+#### Sending events via REST API
+
+If you want to send events upon request rather than at the bootstrap time, then set the `startSendAtStartup` property to *false*:
+
+    mvn spring-boot:run -Dgenerator.startSendAtStartup=false
+
+then do an HTTP POST to the following URL:
+
+    http://<host>:<port>/alfresco/mock/events
+
+**Note:** You must specify at least a **_numOfEvents_** in your request payload.
+ 
+ Request payload example:
+
+```
+    {
+        "numOfEvents" : 3,
+        "pauseTimeInMillis" : 50
+    }
+```
+
 # Scheduled Run
 
 The scheduled option allows you to send **_n_** number of messages per **_s_** seconds for the duration of **_t_** seconds.
