@@ -21,6 +21,7 @@ import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.EventV1;
 import org.alfresco.event.model.ResourceV1;
 import org.alfresco.mockeventgenerator.EventMaker;
+import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
 import org.alfresco.sync.events.types.RepositoryEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,6 +77,10 @@ public class EventConfig
             {
                 return EventObjectMapperFactory.createInstance();
             }
+            case CLOUD_CONNECTOR_EVENT:
+            {
+                return EventObjectMapperFactory.createInstance();
+            }
             default:
             {
                 throw new RuntimeException("No mapper is defined for the: " + eventTypeCategory);
@@ -127,6 +132,14 @@ public class EventConfig
             public List<EventV1<? extends ResourceV1>> getRandomEvent()
             {
                 return EventMaker.getRandomPublicActivitiEvent();
+            }
+        },
+        CLOUD_CONNECTOR_EVENT()
+        {
+            @Override
+            public CloudConnectorIntegrationRequest getRandomEvent()
+            {
+                return EventMaker.getRandomCloudConnectorEvent();
             }
         };
 

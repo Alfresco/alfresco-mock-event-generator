@@ -8,6 +8,7 @@ The generated events are selected from one of the following events categories:
 * ACS_PUBLIC_EVENT
 * ACTIVITI_RAW_EVENT
 * ACTIVITI_PUBLIC_EVENT
+* CLOUD_CONNECTOR_EVENT
 
 The default events category is **_ACS_PUBLIC_EVENT_**.
 To override the default you can use System property:
@@ -57,7 +58,7 @@ To start the application with Kafka:
 Executing any of the above commands will start the application, connect to the given broker and send **10** messages with a pause time of **1** second between each message.
 The messages are sent to the defined topic. See _**camelRoute.destinationName**_ in the application.yml file.
 
-#### Sending events via REST API
+### Sending events via REST API
 
 If you want to send events upon request rather than at the bootstrap time, then set the `startSendAtStartup` property to *false*:
 
@@ -77,6 +78,60 @@ then do an HTTP POST to the following URL:
         "pauseTimeInMillis" : 50
     }
 ```
+
+### Sending custom Cloud Connector events via REST API and RabbitMQ
+
+The Cloud Connector event is a special case where you can **_override_** the `inBoundVariables` and/or `outBoundVariables` attributes.
+
+The default Cloud Connector event looks like:
+
+```
+{
+    "appName": "default-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceFullName": "rb-my-app",
+    "serviceType": "runtime-bundle",
+    "serviceVersion": "",
+    "integrationContext": {
+        "id": "1c7b99de-fa50-11e8-9b6d-8efb5254abd4",
+        "outBoundVariables": {},
+        "processInstanceId": "1c7b72c8-fa50-11e8-9b6d-8efb5254abd4",
+        "processDefinitionId": "ConnectorProcess:1:41f6f25f-fa0a-11e8-9b6d-8efb5254abd4",
+        "activityElementId": "sid-CDFE7219-4627-43E9-8CA8-866CC38EBA94",
+        "connectorType": "Example Connector",
+        "inBoundVariables": {
+            "firstName": "Paulo",
+            "lastName": "Silva",
+            "age": 25
+        }
+    }
+}
+```
+
+To override the default event, first run the application with the following settings:
+
+    mvn spring-boot:run -Dspring.profiles.active=rabbitMQ -Dgenerator.startSendAtStartup=false -Dgenerator.eventCategory=CLOUD_CONNECTOR_EVENT -Dmessaging.to.rabbitmq.camelRoute.destinationName="Example Connector"
+
+then do an HTTP POST to the following URL:
+
+    http://<host>:<port>/alfresco/mock/connector-event
+
+Request payload example:
+
+```
+{
+    "inBoundVariables": {
+      "nodeId": "bd285b4f-9ee4-11e8-9079-0242ac118745",
+      "properties": {
+        "cm:title": "Node Title",
+        "cm:description": "Node Description"
+      }
+    }
+}
+```
+
+**Note:** `inBoundVariables` and `outBoundVariables` are of type `Map<String, Object>` so you can add whatever you require withing the JSON body.
 
 # Scheduled Run
 
