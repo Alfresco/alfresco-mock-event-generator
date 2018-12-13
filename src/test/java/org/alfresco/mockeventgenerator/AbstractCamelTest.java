@@ -108,6 +108,9 @@ public abstract class AbstractCamelTest
     @Test
     public void testSendAndReceiveMockAcsRawEvent() throws Exception
     {
+        // Override camelMessageProducer mapper
+        camelMessageProducer.setObjectMapper(RAW_OBJECT_MAPPER);
+
         // Generate random events
         RepositoryEvent event1 = EventMaker.getRandomRawAcsEvent();
         RepositoryEvent event2 = EventMaker.getRandomRawAcsEvent();
@@ -131,9 +134,6 @@ public abstract class AbstractCamelTest
     @Test
     public void testSendAndReceiveMockAcsPublicEvent() throws Exception
     {
-        // Override camelMessageProducer mapper
-        camelMessageProducer.setObjectMapper(PUBLIC_OBJECT_MAPPER);
-
         // Generate random events
         EventV1<? extends ResourceV1> event1 = EventMaker.getRandomPublicAcsEvent();
         EventV1<? extends ResourceV1> event2 = EventMaker.getRandomPublicAcsEvent();
@@ -179,9 +179,6 @@ public abstract class AbstractCamelTest
     @Test
     public void testSendAndReceiveMockActivitiPublicEvent() throws Exception
     {
-        // Override camelMessageProducer mapper
-        camelMessageProducer.setObjectMapper(PUBLIC_OBJECT_MAPPER);
-
         // Generate random events
         List<EventV1<? extends ResourceV1>> events1 = PublicActivitiEventInstance.PROCESS_CREATED.getEvents();
         List<EventV1<? extends ResourceV1>> events2 = PublicActivitiEventInstance.TASK_ASSIGNED.getEvents();
@@ -212,9 +209,6 @@ public abstract class AbstractCamelTest
     @Test
     public void testSendAndReceiveMockConnectorEvent() throws Exception
     {
-        // Override camelMessageProducer mapper
-        camelMessageProducer.setObjectMapper(PUBLIC_OBJECT_MAPPER);
-
         // Generate random events
         CloudConnectorIntegrationRequest event1 = EventMaker.getRandomCloudConnectorEvent();
         CloudConnectorIntegrationRequest event2 = EventMaker.getRandomCloudConnectorEvent();
@@ -269,7 +263,7 @@ public abstract class AbstractCamelTest
 
         String receivedEvent = getBody(mockEndpoint, 0);
         assertNotNull(receivedEvent);
-        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(inBoundVariables)));
+        assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables)));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
@@ -298,8 +292,8 @@ public abstract class AbstractCamelTest
 
         String receivedEvent = getBody(mockEndpoint, 0);
         assertNotNull(receivedEvent);
-        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(inBoundVariables)));
-        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(outBoundVariables)));
+        assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables)));
+        assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(outBoundVariables)));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();

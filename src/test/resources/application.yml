@@ -3,7 +3,7 @@ server:
 
 generator:
     # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT|CLOUD_CONNECTOR_EVENT
-    eventCategory: ACS_RAW_EVENT
+    eventCategory: ACS_PUBLIC_EVENT
     startSendAtStartup: false
 
 messaging:
