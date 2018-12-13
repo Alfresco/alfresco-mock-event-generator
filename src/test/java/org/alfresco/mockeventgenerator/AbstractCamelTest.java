@@ -15,18 +15,30 @@
  */
 package org.alfresco.mockeventgenerator;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.EventV1;
 import org.alfresco.event.model.ResourceV1;
+import org.alfresco.mockeventgenerator.EventController.CloudConnectorPayload;
+import org.alfresco.mockeventgenerator.EventController.EventRequestPayload;
 import org.alfresco.mockeventgenerator.EventMaker.PublicActivitiEventInstance;
 import org.alfresco.mockeventgenerator.config.EventConfig;
+import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
 import org.alfresco.sync.events.types.RepositoryEvent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.After;
@@ -35,6 +47,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,12 +58,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Jamal Kaabi-Mofrad
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractCamelTest
 {
     private static final String ROUTE_ID = "MOCK-ID";
     private static final ObjectMapper PUBLIC_OBJECT_MAPPER = EventObjectMapperFactory.createInstance();
     private static final ObjectMapper RAW_OBJECT_MAPPER = EventConfig.createAcsRawEventObjectMapper();
+    private static final String BASE_URL = "http://localhost:{0}/alfresco/mock/";
 
     @Autowired
     protected CamelContext camelContext;
@@ -62,12 +78,21 @@ public abstract class AbstractCamelTest
     @Autowired
     protected CamelMessageProducer camelMessageProducer;
 
+    @Autowired
+    protected TestRestTemplate restTemplate;
+
+    @LocalServerPort
+    private int port;
+
     private ObjectMapper defaultObjectMapper;
+    private String baseUrl;
 
     @Before
     public void setUp() throws Exception
     {
         this.defaultObjectMapper = camelMessageProducer.getObjectMapper();
+        MessageFormat messageFormat = new MessageFormat(BASE_URL);
+        this.baseUrl = messageFormat.format(new String[] { Integer.toString(port) });
         // Configure route
         configureRoute();
     }
@@ -184,6 +209,102 @@ public abstract class AbstractCamelTest
         mockEndpoint.assertIsSatisfied();
     }
 
+    @Test
+    public void testSendAndReceiveMockConnectorEvent() throws Exception
+    {
+        // Override camelMessageProducer mapper
+        camelMessageProducer.setObjectMapper(PUBLIC_OBJECT_MAPPER);
+
+        // Generate random events
+        CloudConnectorIntegrationRequest event1 = EventMaker.getRandomCloudConnectorEvent();
+        CloudConnectorIntegrationRequest event2 = EventMaker.getRandomCloudConnectorEvent();
+
+        // Set the expected messages
+        mockEndpoint.expectedBodiesReceived(
+                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(2);
+
+        // Send the 1st event
+        eventSender.sendEvent(event1);
+        // Send the 2nd event
+        eventSender.sendEvent(event2);
+
+        // Checks that the received message count is equal to the number of messages sent
+        // Also, checks the received message body is equal to the sent message
+        mockEndpoint.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMockEventsViaRestApi() throws Exception
+    {
+        final int numOfEvents = 2;
+        EventRequestPayload payload = new EventRequestPayload();
+        payload.setNumOfEvents(numOfEvents);
+        payload.setPauseTimeInMillis(-1L);
+
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(numOfEvents);
+        // Send event via Rest API
+        restTemplate.postForLocation(baseUrl + "events", payload);
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCustomConnectorEventViaRestApi_inBoundVars() throws Exception
+    {
+        Map<String, Object> inBoundVariables = new HashMap<>();
+
+        CloudConnectorPayload payload = new CloudConnectorPayload();
+        inBoundVariables.put("properties", Collections.singletonMap("cm:title", "Test Title"));
+        inBoundVariables.put("nodeId", UUID.randomUUID().toString());
+        payload.setInBoundVariables(inBoundVariables);
+
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(1);
+        // Send event via Rest API
+        restTemplate.postForLocation(baseUrl + "connector-event", payload);
+
+        String receivedEvent = getBody(mockEndpoint, 0);
+        assertNotNull(receivedEvent);
+        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(inBoundVariables)));
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCustomConnectorEventViaRestApi_inBoundAndOutBoundVars() throws Exception
+    {
+        String nodeId = UUID.randomUUID().toString();
+        Map<String, Object> inBoundVariables = new HashMap<>();
+        Map<String, Object> outBoundVariables = new HashMap<>();
+
+        CloudConnectorPayload payload = new CloudConnectorPayload();
+        // Set inBoundVariables
+        inBoundVariables.put("properties", Collections.singletonMap("cm:description", "Test Description."));
+        inBoundVariables.put("nodeId", nodeId);
+        payload.setInBoundVariables(inBoundVariables);
+        // Set outBoundVariables
+        outBoundVariables.put("nodeId", nodeId);
+        payload.setOutBoundVariables(outBoundVariables);
+
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(1);
+        // Send event via Rest API
+        restTemplate.postForLocation(baseUrl + "connector-event", payload);
+
+        String receivedEvent = getBody(mockEndpoint, 0);
+        assertNotNull(receivedEvent);
+        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(inBoundVariables)));
+        assertTrue(receivedEvent.contains(defaultObjectMapper.writeValueAsString(outBoundVariables)));
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
     protected void configureRoute() throws Exception
     {
         camelContext.addRoutes(new RouteBuilder()
@@ -196,6 +317,16 @@ public abstract class AbstractCamelTest
                             .to(mockEndpoint);
             }
         });
+    }
+
+    protected String getBody(MockEndpoint mockEndpoint, int index)
+    {
+        List<Exchange> list = mockEndpoint.getExchanges();
+        if (list.size() <= index)
+        {
+            return null;
+        }
+        return list.get(index).getIn().getBody().toString();
     }
 
     protected abstract String getRoute();
