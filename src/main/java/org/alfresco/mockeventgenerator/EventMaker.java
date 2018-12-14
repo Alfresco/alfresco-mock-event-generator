@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +47,10 @@ import org.alfresco.event.model.activiti.SequenceFlowResourceV1;
 import org.alfresco.event.model.activiti.TaskCandidateResourceV1;
 import org.alfresco.event.model.activiti.TaskResourceV1;
 import org.alfresco.event.model.activiti.VariableResourceV1;
+import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
+import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest.IntegrationContext;
 import org.alfresco.mockeventgenerator.util.ResourceUtil;
+import org.alfresco.mockeventgenerator.util.UserInfo;
 import org.alfresco.sync.events.types.NodeAddedEvent;
 import org.alfresco.sync.events.types.RepositoryEvent;
 import org.alfresco.sync.events.types.TransactionCommittedEvent;
@@ -61,18 +65,18 @@ import org.json.JSONObject;
 public class EventMaker
 {
     private static final Random RANDOM = new Random();
-    private static final List<String> USER_LIST = new ArrayList<>();
+    private static final List<UserInfo> USER_LIST = new ArrayList<>();
     private static final List<String> GROUP_LIST = new ArrayList<>();
     private static final List<String> PERMISSIONS = new ArrayList<>();
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     static
     {
-        USER_LIST.add("johndoe");
-        USER_LIST.add("sblogg");
-        USER_LIST.add("graymond");
-        USER_LIST.add("jsixpack");
-        USER_LIST.add("jmeatball");
+        USER_LIST.add(new UserInfo("John", "Doe", 25, "johndoe"));
+        USER_LIST.add(new UserInfo("Sam", "Blogg", 31, "sblogg"));
+        USER_LIST.add(new UserInfo("Glen", "Raymond", 45, "graymond"));
+        USER_LIST.add(new UserInfo("Joe", "Sixpack", 41, "jsixpack"));
+        USER_LIST.add(new UserInfo("Jane", "Meatball", 28, "jmeatball"));
 
         GROUP_LIST.add("GROUP_A");
         GROUP_LIST.add("GROUP_B");
@@ -105,7 +109,7 @@ public class EventMaker
                             "cm:content",
                             Stream.of("/Company Home/Sites/" + siteId + "/documentLibrary/Docs/" + docName).collect(Collectors.toList()),
                             Stream.of(getUUID(6)).collect(Collectors.toList()),
-                            getUsername(),
+                            getUserName(),
                             currentTimeMillis(),
                             null,
                             Stream.of("sys:localized", "sys:referenceable", "cm:auditable").collect(Collectors.toSet()),
@@ -119,12 +123,12 @@ public class EventMaker
             {
                 return AuthorityAddedToGroupEvent.builder()
                             .parentGroup(getGroup())
-                            .authorityName(getUsername())
+                            .authorityName(getUserName())
                             .seqNumber(1)
                             .txnId(getUUID())
                             .networkId("")
                             .timestamp(currentTimeMillis())
-                            .username(getUsername())
+                            .username(getUserName())
                             .build();
             }
         },
@@ -147,7 +151,7 @@ public class EventMaker
                             .nodeType("cm:folder")
                             .paths(Stream.of("/Company Home/Sites/" + siteId + "/documentLibrary/Docs").collect(Collectors.toList()))
                             .parentNodeIds(Stream.of(getUUID(5)).collect(Collectors.toList()))
-                            .username(getUsername())
+                            .username(getUserName())
                             .nodeModificationTime(currentTimeMillis())
                             .aspects(Stream.of("sys:localized", "cm:titled", "sys:referenceable", "cm:auditable").collect(Collectors.toSet()))
                             .nodeProperties(new HashMap<>())
@@ -163,7 +167,7 @@ public class EventMaker
                             getUUID(),
                             "",
                             currentTimeMillis(),
-                            getUsername(),
+                            getUserName(),
                             null);
             }
         };
@@ -181,7 +185,7 @@ public class EventMaker
                 List<HierarchyEntry> hierarchyEntries = getNodeHierarchyEntries();
                 NodeResourceV1 contentResource = new NodeResourceV1(getUUID(), hierarchyEntries, "cm:content");
 
-                return new EventV1<>("NODEADDED", getUsername(), contentResource);
+                return new EventV1<>("NODEADDED", getUserName(), contentResource);
             }
         },
         AUTHORITY_ADDED_TO_GROUP_EVENT()
@@ -189,7 +193,7 @@ public class EventMaker
             @Override
             public EventV1<AuthorityResourceV1> getEvent()
             {
-                AuthorityResourceV1 resource = new AuthorityResourceV1(getUUID(), new ArrayList<>(), getUsername());
+                AuthorityResourceV1 resource = new AuthorityResourceV1(getUUID(), new ArrayList<>(), getUserName());
                 resource.setParentGroup(getGroup());
 
                 return new EventV1<>("AUTHADDEDTOGROUP", "admin", resource);
@@ -206,7 +210,7 @@ public class EventMaker
                 resource.setAuthority(getGroup());
                 resource.setPermission(getPermission());
 
-                return new EventV1<>("LOCALPERMISSIONGRANTED", getUsername(), resource);
+                return new EventV1<>("LOCALPERMISSIONGRANTED", getUserName(), resource);
             }
         },
         TRANSACTION_COMMITTED_EVENT()
@@ -216,7 +220,7 @@ public class EventMaker
             {
                 ResourceV1 resource = new ResourceV1(getUUID(), new ArrayList<>());
 
-                return new EventV1<>("TRANSACTION_COMMITTED", getUsername(), resource);
+                return new EventV1<>("TRANSACTION_COMMITTED", getUserName(), resource);
             }
         };
 
@@ -308,7 +312,7 @@ public class EventMaker
                 processCreatedResource.setStatus("RUNNING");
                 processCreatedResource.setProcessDefinitionId("SimpleProcess:1:" + getUUID());
                 processCreatedResource.setProcessDefinitionKey("SimpleProcess");
-                EventV1<ProcessResourceV1> processCreatedEvent = new EventV1<>("PROCESS_CREATED", getUsername(), processCreatedResource);
+                EventV1<ProcessResourceV1> processCreatedEvent = new EventV1<>("PROCESS_CREATED", getUserName(), processCreatedResource);
                 events.add(processCreatedEvent);
 
                 // Event 2
@@ -436,7 +440,7 @@ public class EventMaker
                 taskAssignedResource.setProcessInstanceId(getUUID());
                 taskAssignedResource.setPriority(50);
                 taskAssignedResource.setStatus("ASSIGNED");
-                taskAssignedResource.setAssignee(getUsername());
+                taskAssignedResource.setAssignee(getUserName());
                 taskAssignedResource.setCreatedDate(new Date());
                 taskAssignedResource.setClaimedDate(new Date());
                 EventV1<TaskResourceV1> taskAssignedEvent = new EventV1<>("TASK_ASSIGNED", null, taskAssignedResource);
@@ -459,7 +463,7 @@ public class EventMaker
                 taskCompletedResource.setProcessInstanceId(getUUID());
                 taskCompletedResource.setPriority(50);
                 taskCompletedResource.setStatus("ASSIGNED");
-                taskCompletedResource.setAssignee(getUsername());
+                taskCompletedResource.setAssignee(getUserName());
                 taskCompletedResource.setCreatedDate(new Date());
                 taskCompletedResource.setClaimedDate(new Date());
                 EventV1<TaskResourceV1> taskCompletedEvent = new EventV1<>("TASK_COMPLETED", null, taskCompletedResource);
@@ -553,7 +557,7 @@ public class EventMaker
                 setCommonValues(processCompletedResource, taskCompletedResource.getProcessInstanceId());
                 processCompletedResource.setStatus("COMPLETED");
                 processCompletedResource.setProcessDefinitionId(taskCompletedResource.getProcessDefinitionId());
-                EventV1<ProcessResourceV1> processCompletedEvent = new EventV1<>("PROCESS_COMPLETED", getUsername(), processCompletedResource);
+                EventV1<ProcessResourceV1> processCompletedEvent = new EventV1<>("PROCESS_COMPLETED", getUserName(), processCompletedResource);
                 events.add(processCompletedEvent);
 
                 return events;
@@ -575,6 +579,43 @@ public class EventMaker
         public abstract List<EventV1<? extends ResourceV1>> getEvents();
     }
 
+    public enum CloudConnectorEventInstance
+    {
+        PROCESS_STARTED()
+        {
+            @Override
+            public CloudConnectorIntegrationRequest getEvent()
+            {
+                IntegrationContext context = new IntegrationContext();
+                context.setId(getUUID());
+                context.setProcessInstanceId(getUUID());
+                context.setProcessDefinitionId("ConnectorProcess:1:" + getUUID());
+                context.setActivityElementId("sid-" + getUUID().toUpperCase());
+                context.setConnectorType("Example Connector");
+                context.setOutBoundVariables(new HashMap<>());
+                Map<String, Object> inBoundVariables = new HashMap<>();
+                UserInfo user = getUser();
+                inBoundVariables.put("firstName", user.getFirstName());
+                inBoundVariables.put("lastName", user.getLastName());
+                inBoundVariables.put("age", user.getAge());
+                context.setInBoundVariables(inBoundVariables);
+
+                CloudConnectorIntegrationRequest request = new CloudConnectorIntegrationRequest();
+                request.setAppName("default-app");
+                request.setAppVersion("");
+                request.setServiceName("rb-my-app");
+                request.setServiceFullName("rb-my-app");
+                request.setServiceType("runtime-bundle");
+                request.setServiceVersion("");
+                request.setIntegrationContext(context);
+
+                return request;
+            }
+        };
+
+        public abstract CloudConnectorIntegrationRequest getEvent();
+    }
+
     private static String getUUID()
     {
         return UUID.randomUUID().toString();
@@ -587,7 +628,12 @@ public class EventMaker
                     .collect(Collectors.toList());
     }
 
-    private static String getUsername()
+    private static String getUserName()
+    {
+        return getUser().getUserName();
+    }
+
+    private static UserInfo getUser()
     {
         int index = RANDOM.nextInt(USER_LIST.size());
         return USER_LIST.get(index);
@@ -630,27 +676,34 @@ public class EventMaker
         return primaryHierarchy;
     }
 
+    private static <T> T getRandomEventTypeValue(T[] array)
+    {
+        int i = RANDOM.nextInt(array.length);
+        return array[i];
+    }
+
     public static RepositoryEvent getRandomRawAcsEvent()
     {
-        int i = RANDOM.nextInt(RawAcsEventInstance.values().length);
-        return RawAcsEventInstance.values()[i].getEvent();
+        return getRandomEventTypeValue(RawAcsEventInstance.values()).getEvent();
     }
 
     public static EventV1<? extends ResourceV1> getRandomPublicAcsEvent()
     {
-        int i = RANDOM.nextInt(PublicAcsEventInstance.values().length);
-        return PublicAcsEventInstance.values()[i].getEvent();
+        return getRandomEventTypeValue(PublicAcsEventInstance.values()).getEvent();
     }
 
     public static String getRandomRawActivitiEvent()
     {
-        int i = RANDOM.nextInt(RawActivitiEventInstance.values().length);
-        return RawActivitiEventInstance.values()[i].getEvent();
+        return getRandomEventTypeValue(RawActivitiEventInstance.values()).getEvent();
     }
 
     public static List<EventV1<? extends ResourceV1>> getRandomPublicActivitiEvent()
     {
-        int i = RANDOM.nextInt(PublicActivitiEventInstance.values().length);
-        return PublicActivitiEventInstance.values()[i].getEvents();
+        return getRandomEventTypeValue(PublicActivitiEventInstance.values()).getEvents();
+    }
+
+    public static CloudConnectorIntegrationRequest getRandomCloudConnectorEvent()
+    {
+        return getRandomEventTypeValue(CloudConnectorEventInstance.values()).getEvent();
     }
 }

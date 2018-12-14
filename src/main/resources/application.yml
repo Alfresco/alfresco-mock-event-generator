@@ -7,7 +7,7 @@ spring:
         active: activeMQ
 
 generator:
-    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT
+    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT|CLOUD_CONNECTOR_EVENT
     eventCategory: ACS_PUBLIC_EVENT
     startSendAtStartup: true
     # This property will be ignored if 'startSendAtStartup' is set to false

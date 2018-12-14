@@ -2,8 +2,8 @@ server:
     port: 9090
 
 generator:
-    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT
-    eventCategory: ACS_RAW_EVENT
+    # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT|CLOUD_CONNECTOR_EVENT
+    eventCategory: ACS_PUBLIC_EVENT
     startSendAtStartup: false
 
 messaging:

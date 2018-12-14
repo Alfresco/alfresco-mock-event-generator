@@ -57,14 +57,17 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            try
+            sendEvent(eventTypeCategory.getRandomEvent());
+            if (pauseTimeMillis > 0)
             {
-                sendEvent(eventTypeCategory.getRandomEvent());
-                Thread.sleep(pauseTimeMillis);
-            }
-            catch (InterruptedException e)
-            {
-                LOGGER.info(e.getMessage());
+                try
+                {
+                    Thread.sleep(pauseTimeMillis);
+                }
+                catch (InterruptedException e)
+                {
+                    LOGGER.info(e.getMessage());
+                }
             }
         }
     }

@@ -15,6 +15,10 @@
  */
 package org.alfresco.mockeventgenerator;
 
+import java.util.Map;
+
+import org.alfresco.mockeventgenerator.EventMaker.CloudConnectorEventInstance;
+import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -30,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jamal Kaabi-Mofrad
  */
 @RestController
-@RequestMapping("/alfresco/mock/events")
+@RequestMapping("/alfresco/mock")
 public class EventController
 {
     @Value("${generator.fixed.pauseTimeInMillis:1000}")
@@ -44,7 +48,7 @@ public class EventController
         this.messageSender = messageSender;
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(path = "/events" , method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity sendEvents(@RequestBody EventRequestPayload payload)
     {
@@ -59,6 +63,33 @@ public class EventController
         }
         messageSender.sendRandomEvent(payload.getNumOfEvents(), pauseTime);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(path = "/connector-event", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
+    public ResponseEntity sendCloudConnectorEvents(@RequestBody CloudConnectorPayload payload)
+    {
+        if (payload == null)
+        {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        CloudConnectorIntegrationRequest event = CloudConnectorEventInstance.PROCESS_STARTED.getEvent();
+        if (isNotEmptyMap(payload.getInBoundVariables()))
+        {
+            event.getIntegrationContext().setInBoundVariables(payload.getInBoundVariables());
+        }
+        if (isNotEmptyMap(payload.getOutBoundVariables()))
+        {
+            event.getIntegrationContext().setOutBoundVariables(payload.getOutBoundVariables());
+        }
+
+        messageSender.sendEvent(event);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    private static boolean isNotEmptyMap(Map<?, ?> map)
+    {
+        return map != null && !map.isEmpty();
     }
 
     public static class EventRequestPayload
@@ -84,6 +115,32 @@ public class EventController
         public void setPauseTimeInMillis(Long pauseTimeInMillis)
         {
             this.pauseTimeInMillis = pauseTimeInMillis;
+        }
+    }
+
+    public static class CloudConnectorPayload
+    {
+        Map<String ,Object> inBoundVariables;
+        Map<String, Object> outBoundVariables;
+
+        public Map<String, Object> getInBoundVariables()
+        {
+            return inBoundVariables;
+        }
+
+        public void setInBoundVariables(Map<String, Object> inBoundVariables)
+        {
+            this.inBoundVariables = inBoundVariables;
+        }
+
+        public Map<String, Object> getOutBoundVariables()
+        {
+            return outBoundVariables;
+        }
+
+        public void setOutBoundVariables(Map<String, Object> outBoundVariables)
+        {
+            this.outBoundVariables = outBoundVariables;
         }
     }
 }
