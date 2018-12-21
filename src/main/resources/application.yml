@@ -4,12 +4,12 @@ server:
 spring:
     profiles:
         # Available profiles: activeMQ|rabbitMQ|kafka
-        active: rabbitMQ
+        active: activeMQ
 
 generator:
     # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT|CLOUD_CONNECTOR_EVENT
-    eventCategory: CLOUD_CONNECTOR_EVENT
-    startSendAtStartup: false
+    eventCategory: ACS_PUBLIC_EVENT
+    startSendAtStartup: true
     # This property will be ignored if 'startSendAtStartup' is set to false
     shutdownAfterSend: true
     # This property will be ignored if 'shutdownAfterSend' is set to false

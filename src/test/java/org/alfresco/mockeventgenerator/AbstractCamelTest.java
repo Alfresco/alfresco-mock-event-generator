@@ -94,7 +94,6 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        System.out.println(this.mockEndpoint.getEndpointUri());
         eventSender.sendEvent(event1, "mock");
         // Send the 2nd event
         eventSender.sendEvent(event2, "mock");

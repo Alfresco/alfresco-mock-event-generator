@@ -24,8 +24,6 @@ import org.springframework.context.annotation.Profile;
 
 import com.rabbitmq.client.ConnectionFactory;
 
-import java.util.Map;
-
 /**
  * @author Jamal Kaabi-Mofrad
  */
@@ -41,16 +39,6 @@ public class RabbitMQConfig extends RouteConfig
     {
         super(properties.getCamelRoute());
         this.properties = properties;
-        System.out.println("Destination name: " + this.properties.getCamelRoute().getDestinationName());
-        if(this.properties.getCamelRoute().getRoutes() != null) {
-            System.out.println("Not null " + this.properties.getCamelRoute().getRoutes());
-            for (Map.Entry<String, String> entry : this.properties.getCamelRoute().getRoutes().entrySet())
-            {
-                System.out.println(entry.getKey() + "/" + entry.getValue());
-            }
-        }
-        else
-            System.out.println("Null");
     }
 
     @Bean
