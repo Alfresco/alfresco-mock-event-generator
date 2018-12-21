@@ -57,7 +57,7 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            sendEvent(eventTypeCategory.getRandomEvent());
+            sendEvent(eventTypeCategory.getRandomEvent(), "");
             if (pauseTimeMillis > 0)
             {
                 try
@@ -93,7 +93,7 @@ public class EventSender
         int counter = 0;
         while (!cancelled.get() && counter < numOfEventsPerSecond)
         {
-            sendEvent(eventTypeCategory.getRandomEvent());
+            sendEvent(eventTypeCategory.getRandomEvent(), "");
             counter++;
         }
     }
@@ -104,11 +104,11 @@ public class EventSender
         senderHandler.cancel(true);
     }
 
-    public void sendEvent(Object event)
+    public void sendEvent(Object event, String endpoint)
     {
         try
         {
-            camelMessageProducer.send(event);
+            camelMessageProducer.send(event, endpoint);
         }
         catch (Exception ex)
         {

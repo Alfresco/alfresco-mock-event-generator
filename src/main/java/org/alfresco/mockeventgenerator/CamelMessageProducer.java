@@ -47,6 +47,7 @@ public class CamelMessageProducer
     private final AtomicInteger totalMessageCounter;
     private final AtomicBoolean aggregated;
     private ObjectMapper objectMapper;
+    private Map<String, String> routes;
 
     @Autowired
     public CamelMessageProducer(CamelContext camelContext, CamelRouteProperties routeProperties, ObjectMapper objectMapper)
@@ -58,14 +59,15 @@ public class CamelMessageProducer
         this.totalMessageCounter = new AtomicInteger(0);
         this.aggregated = new AtomicBoolean(false);
         this.objectMapper = objectMapper;
+        this.routes = routeProperties.getRoutes();
     }
 
-    public void send(Object message) throws Exception
+    public void send(Object message, String endpoint) throws Exception
     {
-        send(message, Collections.emptyMap());
+        send(message, Collections.emptyMap(), endpoint);
     }
 
-    public void send(Object message, Map<String, Object> headers) throws Exception
+    public void send(Object message, Map<String, Object> headers, String endpoint) throws Exception
     {
         if (message instanceof Collection)
         {
@@ -73,7 +75,7 @@ public class CamelMessageProducer
             Collection<?> msgs = (Collection<?>) message;
             for (Object obj : msgs)
             {
-                sendImpl(obj, headers);
+                sendImpl(obj, headers, endpoint);
             }
         }
         else
@@ -82,11 +84,16 @@ public class CamelMessageProducer
             {
                 aggregated.set(true);
             }
-            sendImpl(message, headers);
+            sendImpl(message, headers, endpoint);
         }
     }
 
-    private void sendImpl(Object message, Map<String, Object> headers) throws Exception
+    private String getEndpointByKey(String key)
+    {
+        return this.routes.get(key);
+    }
+
+    private void sendImpl(Object message, Map<String, Object> headers, String endpoint) throws Exception
     {
         if (!(message instanceof String))
         {
@@ -94,9 +101,10 @@ public class CamelMessageProducer
         }
         if (LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
+            LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + this.endpoint);
         }
-        producer.sendBodyAndHeaders(endpoint, message, headers);
+
+        producer.sendBodyAndHeaders(this.getEndpointByKey(endpoint), message, headers);
         totalMessageCounter.incrementAndGet();
     }
 

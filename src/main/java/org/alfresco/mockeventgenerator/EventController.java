@@ -24,11 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -67,7 +63,7 @@ public class EventController
 
     @RequestMapping(path = "/connector-event", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity sendCloudConnectorEvents(@RequestBody CloudConnectorPayload payload)
+    public ResponseEntity sendCloudConnectorEvents(@RequestBody CloudConnectorPayload payload, @RequestParam("endpoint") String endpoint)
     {
         if (payload == null)
         {
@@ -83,7 +79,7 @@ public class EventController
             event.getIntegrationContext().setOutBoundVariables(payload.getOutBoundVariables());
         }
 
-        messageSender.sendEvent(event);
+        messageSender.sendEvent(event, endpoint);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 

@@ -15,11 +15,14 @@
  */
 package org.alfresco.mockeventgenerator.config;
 
+import java.util.Map;
+
 /**
  * @author Jamal Kaabi-Mofrad
  */
 public class CamelRouteProperties
 {
+    private Map<String, String> routes;
     private String destinationName;
     private String toRoute;
 
@@ -41,5 +44,13 @@ public class CamelRouteProperties
     public void setToRoute(String toRoute)
     {
         this.toRoute = toRoute;
+    }
+
+    public Map<String, String> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(Map<String, String> routes) {
+        this.routes = routes;
     }
 }

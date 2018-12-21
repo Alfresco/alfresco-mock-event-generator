@@ -94,9 +94,10 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1);
+        System.out.println(this.mockEndpoint.getEndpointUri());
+        eventSender.sendEvent(event1, "mock");
         // Send the 2nd event
-        eventSender.sendEvent(event2);
+        eventSender.sendEvent(event2, "mock");
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -120,9 +121,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1);
+        eventSender.sendEvent(event1, "mock");
         // Send the 2nd event
-        eventSender.sendEvent(event2);
+        eventSender.sendEvent(event2, "mock");
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -142,9 +143,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1);
+        eventSender.sendEvent(event1, "mock");
         // Send the 2nd event
-        eventSender.sendEvent(event2);
+        eventSender.sendEvent(event2, "mock");
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -175,9 +176,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(12);
 
         // Send the 1st event. This should generate 11 events.
-        eventSender.sendEvent(events1);
+        eventSender.sendEvent(events1, "mock");
         // Send the 2nd event. This should generate 1 event
-        eventSender.sendEvent(events2);
+        eventSender.sendEvent(events2, "mock");
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message

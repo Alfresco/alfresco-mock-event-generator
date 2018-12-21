@@ -15,6 +15,8 @@ messaging:
             camelRoute:
                 destinationName: generator.event.activemq.test
                 toRoute: direct:${messaging.to.activemq.camelRoute.destinationName}
+                routes:
+                  mock: direct:generator.event.activemq.test
 
         rabbitmq:
             host: localhost
@@ -25,6 +27,8 @@ messaging:
             camelRoute:
                 destinationName: generator.event.rabbitmq.test
                 toRoute: direct:${messaging.to.rabbitmq.camelRoute.destinationName}
+                routes:
+                  mock: direct:generator.event.rabbitmq.test
 
         kafka:
             host: localhost
@@ -32,3 +36,5 @@ messaging:
             camelRoute:
                 destinationName: generator.event.kafka.test
                 toRoute: direct:topic=${messaging.to.kafka.camelRoute.destinationName}
+                routes:
+                  mock: direct:topic=generator.event.kafka.test
