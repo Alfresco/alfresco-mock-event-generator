@@ -34,6 +34,6 @@ public class KafkaConfig extends RouteConfig
     @Autowired
     public KafkaConfig(KafkaProperties properties)
     {
-        super(properties.getCamelRoute());
+        super(properties.getCamelRoutes());
     }
 }

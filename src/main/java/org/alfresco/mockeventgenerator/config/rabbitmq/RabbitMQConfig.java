@@ -37,7 +37,7 @@ public class RabbitMQConfig extends RouteConfig
     @Autowired
     public RabbitMQConfig(RabbitMQProperties properties)
     {
-        super(properties.getCamelRoute());
+        super(properties.getCamelRoutes());
         this.properties = properties;
     }
 

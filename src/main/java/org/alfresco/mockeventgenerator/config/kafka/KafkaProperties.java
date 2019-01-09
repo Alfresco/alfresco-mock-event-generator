@@ -18,19 +18,22 @@ package org.alfresco.mockeventgenerator.config.kafka;
 import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Jamal Kaabi-Mofrad
  */
 @ConfigurationProperties(prefix = "messaging.to.kafka")
 public class KafkaProperties
 {
-    private final CamelRouteProperties camelRoute = new CamelRouteProperties();
+    private final List<CamelRouteProperties> camelRoutes = new ArrayList<>();
     private String host;
     private int port;
 
-    public CamelRouteProperties getCamelRoute()
+    public List<CamelRouteProperties> getCamelRoutes()
     {
-        return camelRoute;
+        return camelRoutes;
     }
 
     public String getHost()

@@ -4,12 +4,12 @@ server:
 spring:
     profiles:
         # Available profiles: activeMQ|rabbitMQ|kafka
-        active: activeMQ
+        active: rabbitMQ
 
 generator:
     # Available category: ACS_RAW_EVENT|ACS_PUBLIC_EVENT|ACTIVITI_RAW_EVENT|ACTIVITI_PUBLIC_EVENT|CLOUD_CONNECTOR_EVENT
-    eventCategory: ACS_PUBLIC_EVENT
-    startSendAtStartup: true
+    eventCategory: CLOUD_CONNECTOR_EVENT
+    startSendAtStartup: false
     # This property will be ignored if 'startSendAtStartup' is set to false
     shutdownAfterSend: true
     # This property will be ignored if 'shutdownAfterSend' is set to false
@@ -32,9 +32,9 @@ messaging:
             host: localhost
             port: 5672
             url: failover:(amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port})?timeout=3000&startupMaxReconnectAttempts=0
-            camelRoute:
-                destinationName: alfresco.events.source
-                toRoute: amqpConnection:topic:${messaging.to.activemq.camelRoute.destinationName}
+            camelRoutes:
+                - destinationName: alfresco.events.source
+                  toRoute: amqpConnection:topic:${messaging.to.activemq.camelRoutes[0].destinationName}
 
         rabbitmq:
             host: localhost
@@ -42,16 +42,15 @@ messaging:
             username: guest
             password: guest
             virtualHost: "/"
-            camelRoute:
-                destinationName: acsCloudConnectorUpdateMetadata
-                toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoute.destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
-                routes:
-                  acsConnectorUpdateMetadata: rabbitmq:acsConnectorUpdateMetadata?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
-                  acsConnectorMoveNode: rabbitmq:acsConnectorMoveNode?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
+            camelRoutes:
+                - destinationName: acsCloudConnectorUpdateMetadata
+                  toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoutes[0].destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
+                - destinationName: acsCloudConnectorMoveNode
+                  toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoutes[1].destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
 
         kafka:
             host: localhost
             port: 9092
-            camelRoute:
-                destinationName: alfresco.events.source
-                toRoute: kafka:${messaging.to.kafka.camelRoute.destinationName}?brokers=${messaging.to.kafka.host}:${messaging.to.kafka.port}
+            camelRoutes:
+                - destinationName: alfresco.events.source
+                  toRoute: kafka:${messaging.to.kafka.camelRoutes[0].destinationName}?brokers=${messaging.to.kafka.host}:${messaging.to.kafka.port}

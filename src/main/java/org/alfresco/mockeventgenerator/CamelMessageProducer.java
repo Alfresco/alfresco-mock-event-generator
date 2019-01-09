@@ -17,6 +17,7 @@ package org.alfresco.mockeventgenerator;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,24 +43,22 @@ public class CamelMessageProducer
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
     private final ProducerTemplate producer;
-    private final String endpoint;
+    private final List<CamelRouteProperties> endpoints;
     private final ExecutorService executor;
     private final AtomicInteger totalMessageCounter;
     private final AtomicBoolean aggregated;
     private ObjectMapper objectMapper;
-    private Map<String, String> routes;
 
     @Autowired
-    public CamelMessageProducer(CamelContext camelContext, CamelRouteProperties routeProperties, ObjectMapper objectMapper)
+    public CamelMessageProducer(CamelContext camelContext, List<CamelRouteProperties> routeProperties, ObjectMapper objectMapper)
     {
         this.producer = camelContext.createProducerTemplate();
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         this.producer.setExecutorService(executor);
-        this.endpoint = routeProperties.getToRoute();
+        this.endpoints = routeProperties;
         this.totalMessageCounter = new AtomicInteger(0);
         this.aggregated = new AtomicBoolean(false);
         this.objectMapper = objectMapper;
-        this.routes = routeProperties.getRoutes();
     }
 
     public void send(Object message, String endpoint) throws Exception
@@ -88,24 +87,45 @@ public class CamelMessageProducer
         }
     }
 
-    private String getEndpointByKey(String key)
-    {
-        return this.routes.get(key);
-    }
-
     private void sendImpl(Object message, Map<String, Object> headers, String endpoint) throws Exception
     {
         if (!(message instanceof String))
         {
             message = objectMapper.writeValueAsString(message);
         }
-        if (LOGGER.isDebugEnabled())
+
+        if (endpoint != null && !endpoint.isEmpty())
         {
-            LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + this.endpoint);
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
+            }
+
+            producer.sendBodyAndHeaders(getEndpointByKey(endpoint), message, headers);
+        } else {
+            for (CamelRouteProperties prop : endpoints) {
+                String route = prop.getToRoute();
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + route);
+                }
+
+                producer.sendBodyAndHeaders(route, message, headers);
+            }
         }
 
-        producer.sendBodyAndHeaders(this.getEndpointByKey(endpoint), message, headers);
         totalMessageCounter.incrementAndGet();
+    }
+
+    private String getEndpointByKey(String key)
+    {
+        for(CamelRouteProperties prop: this.endpoints)
+        {
+            if (prop.getDestinationName().equals(key))
+                return prop.getToRoute();
+        }
+
+        return null;
     }
 
     public void shutdown()
