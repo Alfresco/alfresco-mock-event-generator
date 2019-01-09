@@ -131,7 +131,7 @@ Request payload example:
 }
 ```
 
-**Note:** `inBoundVariables` and `outBoundVariables` are of type `Map<String, Object>` so you can add whatever you require withing the JSON body.
+**Note:** `inBoundVariables` and `outBoundVariables` are of type `Map<String, Object>` so you can add whatever you require within the JSON body.
 
 # Scheduled Run
 
