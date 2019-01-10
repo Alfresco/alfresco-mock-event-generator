@@ -61,6 +61,11 @@ public class CamelMessageProducer
         this.objectMapper = objectMapper;
     }
 
+    public void send(Object message) throws Exception
+    {
+        send(message, Collections.emptyMap(), null);
+    }
+
     public void send(Object message, String endpoint) throws Exception
     {
         send(message, Collections.emptyMap(), endpoint);
@@ -96,36 +101,30 @@ public class CamelMessageProducer
 
         if (endpoint != null && !endpoint.isEmpty())
         {
-            if (LOGGER.isDebugEnabled())
+            sendMessage(message, headers, endpoint);
+        }
+        else
+        {
+            for (CamelRouteProperties prop : endpoints)
             {
-                LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
-            }
-
-            producer.sendBodyAndHeaders(getEndpointByKey(endpoint), message, headers);
-        } else {
-            for (CamelRouteProperties prop : endpoints) {
                 String route = prop.getToRoute();
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + route);
-                }
-
-                producer.sendBodyAndHeaders(route, message, headers);
+                sendMessage(message, headers, route);
             }
         }
 
         totalMessageCounter.incrementAndGet();
     }
 
-    private String getEndpointByKey(String key)
+    private void sendMessage(Object message, Map<String, Object> headers, String endpoint) throws Exception
     {
-        for(CamelRouteProperties prop: this.endpoints)
+
+        if (LOGGER.isDebugEnabled())
         {
-            if (prop.getDestinationName().equals(key))
-                return prop.getToRoute();
+            LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
         }
 
-        return null;
+        producer.sendBodyAndHeaders(endpoint, message, headers);
     }
 
     public void shutdown()

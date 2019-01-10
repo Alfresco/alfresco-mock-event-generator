@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 public class EventSender
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventSender.class);
+    private static final String DYNAMIC_ROUTE = "rabbitmq:{0}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false";
 
     private final CamelMessageProducer camelMessageProducer;
     private final EventTypeCategory eventTypeCategory;
@@ -44,8 +45,7 @@ public class EventSender
     {
         this.camelMessageProducer = camelMessageProducer;
         this.eventTypeCategory = eventTypeCategory;
-        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime()
-                    .availableProcessors() + 1);
+        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     }
 
     public void sendRandomEvent(int numOfEvents)
@@ -75,8 +75,8 @@ public class EventSender
     public void sendRandomEventAtFixedRate(int periodInSeconds, int numOfEventsPerSecond, int runForInSeconds)
     {
         final AtomicBoolean cancelled = new AtomicBoolean(false);
-        final ScheduledFuture<?> senderHandler = executorService
-                    .scheduleAtFixedRate(() -> start(cancelled, numOfEventsPerSecond), 0, periodInSeconds, TimeUnit.SECONDS);
+        final ScheduledFuture<?> senderHandler = executorService.scheduleAtFixedRate(() -> start(cancelled, numOfEventsPerSecond), 0, periodInSeconds,
+                    TimeUnit.SECONDS);
 
         try
         {
@@ -104,8 +104,20 @@ public class EventSender
         senderHandler.cancel(true);
     }
 
-    public void sendEvent(Object event, String endpoint)
+    public void sendEvent(Object event)
     {
+        sendEvent(event, null);
+    }
+
+    public void sendEvent(Object event, String destinationName)
+    {
+        String endpoint = null;
+
+        if (destinationName != null)
+        {
+            endpoint = DYNAMIC_ROUTE.replace("{0}", destinationName);
+        }
+
         try
         {
             camelMessageProducer.send(event, endpoint);

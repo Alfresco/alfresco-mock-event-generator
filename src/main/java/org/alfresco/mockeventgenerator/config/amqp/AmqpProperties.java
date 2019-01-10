@@ -34,7 +34,8 @@ public class AmqpProperties
     private String password;
     private String url;
 
-    public List<CamelRouteProperties> getCamelRoutes() {
+    public List<CamelRouteProperties> getCamelRoutes()
+    {
         return camelRoutes;
     }
 
