@@ -43,10 +43,8 @@ messaging:
             password: guest
             virtualHost: "/"
             camelRoutes:
-                - destinationName: acsCloudConnectorUpdateMetadata
+                - destinationName: engineEvents
                   toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoutes[0].destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
-                - destinationName: acsCloudConnectorMoveNode2
-                  toRoute: rabbitmq:${messaging.to.rabbitmq.camelRoutes[1].destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
 
         kafka:
             host: localhost

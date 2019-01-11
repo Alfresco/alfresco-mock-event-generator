@@ -15,6 +15,7 @@
  */
 package org.alfresco.mockeventgenerator;
 
+import java.text.MessageFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,6 +36,7 @@ public class EventSender
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventSender.class);
     private static final String DYNAMIC_ROUTE = "rabbitmq:{0}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false";
+    private static final MessageFormat MESSAGE_FORMAT = new MessageFormat(DYNAMIC_ROUTE);
 
     private final CamelMessageProducer camelMessageProducer;
     private final EventTypeCategory eventTypeCategory;
@@ -115,7 +117,7 @@ public class EventSender
 
         if (destinationName != null)
         {
-            endpoint = DYNAMIC_ROUTE.replace("{0}", destinationName);
+            endpoint = MESSAGE_FORMAT.format(new String[] { destinationName });
         }
 
         try
