@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.model.EventV1;
@@ -33,6 +34,7 @@ import org.alfresco.event.model.ResourceV1;
 import org.alfresco.mockeventgenerator.EventController.CloudConnectorPayload;
 import org.alfresco.mockeventgenerator.EventController.EventRequestPayload;
 import org.alfresco.mockeventgenerator.EventMaker.PublicActivitiEventInstance;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.alfresco.mockeventgenerator.config.EventConfig;
 import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
 import org.alfresco.sync.events.types.RepositoryEvent;
@@ -43,6 +45,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +65,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public abstract class AbstractCamelTest
 {
     private static final String ROUTE_ID = "MOCK-ID";
+
     private static final ObjectMapper PUBLIC_OBJECT_MAPPER = EventObjectMapperFactory.createInstance();
     private static final ObjectMapper RAW_OBJECT_MAPPER = EventConfig.createAcsRawEventObjectMapper();
     private static final String BASE_URL = "http://localhost:{0}/alfresco/mock/";
+
+    private List<String> routeIds = new ArrayList<>();
 
     @Autowired
     protected CamelContext camelContext;
@@ -101,7 +107,10 @@ public abstract class AbstractCamelTest
     public void tearDown() throws Exception
     {
         MockEndpoint.resetMocks(camelContext);
-        camelContext.removeRoute(ROUTE_ID);
+        for(String routeId: routeIds)
+        {
+            camelContext.removeRoute(routeId);
+        }
         camelMessageProducer.setObjectMapper(defaultObjectMapper);
     }
 
@@ -116,15 +125,16 @@ public abstract class AbstractCamelTest
         RepositoryEvent event2 = EventMaker.getRandomRawAcsEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(RAW_OBJECT_MAPPER.writeValueAsString(event1), RAW_OBJECT_MAPPER.writeValueAsString(event2)));
+//        mockEndpoint.expectedBodiesReceived(
+//                    Arrays.asList(RAW_OBJECT_MAPPER.writeValueAsString(event1), RAW_OBJECT_MAPPER.writeValueAsString(event2)));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        //TODO: getRoutes length is the same as in application.yml and is adding to mockEndpoint
+        mockEndpoint.expectedMessageCount(getRoutes().size() * 2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1, "mock");
+        eventSender.sendEvent(event1);
         // Send the 2nd event
-        eventSender.sendEvent(event2, "mock");
+        eventSender.sendEvent(event2);
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -145,9 +155,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1, "mock");
+        eventSender.sendEvent(event1);
         // Send the 2nd event
-        eventSender.sendEvent(event2, "mock");
+        eventSender.sendEvent(event2);
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -167,9 +177,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(2);
 
         // Send the 1st event
-        eventSender.sendEvent(event1, "mock");
+        eventSender.sendEvent(event1);
         // Send the 2nd event
-        eventSender.sendEvent(event2, "mock");
+        eventSender.sendEvent(event2);
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -197,9 +207,9 @@ public abstract class AbstractCamelTest
         mockEndpoint.expectedMessageCount(12);
 
         // Send the 1st event. This should generate 11 events.
-        eventSender.sendEvent(events1, "mock");
+        eventSender.sendEvent(events1);
         // Send the 2nd event. This should generate 1 event
-        eventSender.sendEvent(events2, "mock");
+        eventSender.sendEvent(events2);
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
@@ -301,16 +311,24 @@ public abstract class AbstractCamelTest
 
     protected void configureRoute() throws Exception
     {
-        camelContext.addRoutes(new RouteBuilder()
+        AtomicInteger i = new AtomicInteger(1);
+
+        for (CamelRouteProperties routeProperty : getRoutes())
         {
-            @Override
-            public void configure()
+            camelContext.addRoutes(new RouteBuilder()
             {
-                from(getRoute())
-                            .id(ROUTE_ID)
-                            .to(mockEndpoint);
-            }
-        });
+                @Override
+                public void configure()
+                {
+                    String routeId = ROUTE_ID + i.getAndIncrement();
+                    routeIds.add(routeId);
+                    from(routeProperty.getToRoute()).id(routeId).to(mockEndpoint);
+                }
+            });
+        }
+
+        System.out.println("Camel routes: " + camelContext.getRoutes().size());
+        System.out.println("Routes routes: " + getRoutes().size());
     }
 
     protected String getBody(MockEndpoint mockEndpoint, int index)
@@ -323,5 +341,5 @@ public abstract class AbstractCamelTest
         return list.get(index).getIn().getBody().toString();
     }
 
-    protected abstract String getRoute();
+    protected abstract List<CamelRouteProperties> getRoutes();
 }

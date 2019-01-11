@@ -12,11 +12,9 @@ messaging:
             host: localhost
             port: 5672
             url: amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port}
-            camelRoute:
-                destinationName: generator.event.activemq.test
-                toRoute: direct:${messaging.to.activemq.camelRoute.destinationName}
-                routes:
-                  mock: direct:generator.event.activemq.test
+            camelRoutes:
+                - destinationName: generator.event.activemq.test
+                  toRoute: direct:${messaging.to.activemq.camelRoutes[0].destinationName}
 
         rabbitmq:
             host: localhost
@@ -24,17 +22,16 @@ messaging:
             username: guest
             password: guest
             virtualHost: "/"
-            camelRoute:
-                destinationName: generator.event.rabbitmq.test
-                toRoute: direct:${messaging.to.rabbitmq.camelRoute.destinationName}
-                routes:
-                  mock: direct:generator.event.rabbitmq.test
+            camelRoutes:
+                - destinationName: generator.event.rabbitmq.test1
+                  toRoute: direct:${messaging.to.rabbitmq.camelRoutes[0].destinationName}
+                - destinationName: generator.event.rabbitmq.test2
+                  toRoute: direct:${messaging.to.rabbitmq.camelRoutes[1].destinationName}
+
 
         kafka:
             host: localhost
             port: 9092
-            camelRoute:
-                destinationName: generator.event.kafka.test
-                toRoute: direct:topic=${messaging.to.kafka.camelRoute.destinationName}
-                routes:
-                  mock: direct:topic=generator.event.kafka.test
+            camelRoutes:
+                - destinationName: generator.event.kafka.test
+                  toRoute: direct:topic=${messaging.to.kafka.camelRoutes[0].destinationName}

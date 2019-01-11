@@ -19,9 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.alfresco.mockeventgenerator.AbstractCamelTest;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -39,14 +42,15 @@ public class KafkaTest extends AbstractCamelTest
     {
         assertEquals("localhost", properties.getHost());
         assertEquals(9092, properties.getPort());
-        assertNotNull(properties.getCamelRoute());
-        assertEquals(TOPIC_NAME, properties.getCamelRoute().getDestinationName());
-        assertEquals("direct:topic=" + TOPIC_NAME, properties.getCamelRoute().getToRoute());
+        assertNotNull(properties.getCamelRoutes());
+        assertEquals(1, properties.getCamelRoutes().size());
+        assertEquals(TOPIC_NAME, properties.getCamelRoutes().get(0).getDestinationName());
+        assertEquals("direct:topic=" + TOPIC_NAME, properties.getCamelRoutes().get(0).getToRoute());
     }
 
     @Override
-    protected String getRoute()
+    protected List<CamelRouteProperties> getRoutes()
     {
-        return properties.getCamelRoute().getToRoute();
+        return properties.getCamelRoutes();
     }
 }
