@@ -115,7 +115,16 @@ To override the default event, first run the application with the following sett
 
 then do an HTTP POST to the following URL:
 
-    http://<host>:<port>/alfresco/mock/connector-event
+    http://<host>:<port>/alfresco/mock/connector-event?destinationName=<queue-name>
+
+**Note:** `destinationName` parameter is optional. If you specify it, the event will be sent to that queue. If you don't specify it, the event will be sent to each queue from the `application.yml` file.
+
+In order to add a new queue, you need to specify a new entry under the `camelRoutes` parent. E.g:
+```
+camelRoutes:
+    - destinationName: <your-queue-name>
+      toRoute: <rabbitmq|kafka|amqpConnection>:${messaging.to.<rabbitmq|kafka|amqpConnection>.camelRoutes[0].destinationName}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false
+```
 
 Request payload example:
 
