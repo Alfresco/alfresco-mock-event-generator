@@ -106,6 +106,7 @@ public abstract class AbstractCamelTest
     @After
     public void tearDown() throws Exception
     {
+        System.out.println("TearDown");
         MockEndpoint.resetMocks(camelContext);
         for(String routeId: routeIds)
         {
@@ -125,8 +126,11 @@ public abstract class AbstractCamelTest
         RepositoryEvent event2 = EventMaker.getRandomRawAcsEvent();
 
         // Set the expected messages
-//        mockEndpoint.expectedBodiesReceived(
-//                    Arrays.asList(RAW_OBJECT_MAPPER.writeValueAsString(event1), RAW_OBJECT_MAPPER.writeValueAsString(event2)));
+        mockEndpoint.expectedBodiesReceived(Arrays.asList(
+                    RAW_OBJECT_MAPPER.writeValueAsString(event1),
+                    RAW_OBJECT_MAPPER.writeValueAsString(event1),
+                    RAW_OBJECT_MAPPER.writeValueAsString(event2),
+                    RAW_OBJECT_MAPPER.writeValueAsString(event2)));
         // Set the expected number of messages
         //TODO: getRoutes length is the same as in application.yml and is adding to mockEndpoint
         mockEndpoint.expectedMessageCount(getRoutes().size() * 2);
@@ -150,9 +154,12 @@ public abstract class AbstractCamelTest
 
         // Set the expected messages
         mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
+                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1),
+                                PUBLIC_OBJECT_MAPPER.writeValueAsString(event1),
+                                PUBLIC_OBJECT_MAPPER.writeValueAsString(event2),
+                                PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        mockEndpoint.expectedMessageCount(getRoutes().size() * 2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -172,9 +179,9 @@ public abstract class AbstractCamelTest
         String event2 = EventMaker.getRandomRawActivitiEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(Arrays.asList(event1, event2));
+        mockEndpoint.expectedBodiesReceived(Arrays.asList(event1, event1, event2, event2));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        mockEndpoint.expectedMessageCount(getRoutes().size() * 2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -199,12 +206,13 @@ public abstract class AbstractCamelTest
         for (EventV1<? extends ResourceV1> event : allEvents)
         {
             expectedBodies.add(PUBLIC_OBJECT_MAPPER.writeValueAsString(event));
+            expectedBodies.add(PUBLIC_OBJECT_MAPPER.writeValueAsString(event));
         }
 
         // Set the expected messages
         mockEndpoint.expectedBodiesReceived(expectedBodies);
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(12);
+        mockEndpoint.expectedMessageCount(getRoutes().size() * 12);
 
         // Send the 1st event. This should generate 11 events.
         eventSender.sendEvent(events1);
@@ -224,10 +232,13 @@ public abstract class AbstractCamelTest
         CloudConnectorIntegrationRequest event2 = EventMaker.getRandomCloudConnectorEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
+            mockEndpoint.expectedBodiesReceived(
+                        Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1),
+                                    PUBLIC_OBJECT_MAPPER.writeValueAsString(event1),
+                                    PUBLIC_OBJECT_MAPPER.writeValueAsString(event2),
+                                    PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        mockEndpoint.expectedMessageCount(getRoutes().size() * 2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -242,7 +253,7 @@ public abstract class AbstractCamelTest
     @Test
     public void testMockEventsViaRestApi() throws Exception
     {
-        final int numOfEvents = 2;
+        final int numOfEvents = 0;
         EventRequestPayload payload = new EventRequestPayload();
         payload.setNumOfEvents(numOfEvents);
         payload.setPauseTimeInMillis(-1L);
@@ -267,7 +278,7 @@ public abstract class AbstractCamelTest
         payload.setInBoundVariables(inBoundVariables);
 
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedMessageCount(getRoutes().size());
         // Send event via Rest API
         restTemplate.postForLocation(baseUrl + "connector-event", payload);
 
@@ -296,7 +307,7 @@ public abstract class AbstractCamelTest
         payload.setOutBoundVariables(outBoundVariables);
 
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedMessageCount(getRoutes().size());
         // Send event via Rest API
         restTemplate.postForLocation(baseUrl + "connector-event", payload);
 
@@ -326,9 +337,6 @@ public abstract class AbstractCamelTest
                 }
             });
         }
-
-        System.out.println("Camel routes: " + camelContext.getRoutes().size());
-        System.out.println("Routes routes: " + getRoutes().size());
     }
 
     protected String getBody(MockEndpoint mockEndpoint, int index)
