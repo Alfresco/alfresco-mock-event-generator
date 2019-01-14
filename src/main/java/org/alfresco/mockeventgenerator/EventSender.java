@@ -35,8 +35,6 @@ import org.springframework.stereotype.Service;
 public class EventSender
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventSender.class);
-    private static final String DYNAMIC_ROUTE = "rabbitmq:{0}?connectionFactory=#rabbitmqConnectionFactory&exchangeType=topic&autoDelete=false";
-    private static final MessageFormat MESSAGE_FORMAT = new MessageFormat(DYNAMIC_ROUTE);
 
     private final CamelMessageProducer camelMessageProducer;
     private final EventTypeCategory eventTypeCategory;
@@ -59,7 +57,7 @@ public class EventSender
     {
         for (int i = 0; i < numOfEvents; i++)
         {
-            sendEvent(eventTypeCategory.getRandomEvent(), "");
+            sendEvent(eventTypeCategory.getRandomEvent());
             if (pauseTimeMillis > 0)
             {
                 try
@@ -95,7 +93,7 @@ public class EventSender
         int counter = 0;
         while (!cancelled.get() && counter < numOfEventsPerSecond)
         {
-            sendEvent(eventTypeCategory.getRandomEvent(), "");
+            sendEvent(eventTypeCategory.getRandomEvent());
             counter++;
         }
     }
@@ -113,16 +111,9 @@ public class EventSender
 
     public void sendEvent(Object event, String destinationName)
     {
-        String endpoint = null;
-
-        if (destinationName != null)
-        {
-            endpoint = MESSAGE_FORMAT.format(new String[] { destinationName });
-        }
-
         try
         {
-            camelMessageProducer.send(event, endpoint);
+            camelMessageProducer.send(event, destinationName);
         }
         catch (Exception ex)
         {

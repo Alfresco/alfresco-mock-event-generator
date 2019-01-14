@@ -50,8 +50,8 @@ public class RabbitMQTest extends AbstractCamelTest
         assertEquals(2, properties.getCamelRoutes().size());
         assertEquals(TOPIC_NAME1, properties.getCamelRoutes().get(0).getDestinationName());
         assertEquals(TOPIC_NAME2, properties.getCamelRoutes().get(1).getDestinationName());
-        assertEquals("direct:" + TOPIC_NAME1, properties.getCamelRoutes().get(0).getToRoute());
-        assertEquals("direct:" + TOPIC_NAME2, properties.getCamelRoutes().get(1).getToRoute());
+        assertEquals("mock:" + TOPIC_NAME1, properties.getCamelRoutes().get(0).getToRoute());
+        assertEquals("mock:" + TOPIC_NAME2, properties.getCamelRoutes().get(1).getToRoute());
     }
 
     @Override

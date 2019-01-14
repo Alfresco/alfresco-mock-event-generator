@@ -14,7 +14,7 @@ messaging:
             url: amqp://${messaging.to.activemq.host}:${messaging.to.activemq.port}
             camelRoutes:
                 - destinationName: generator.event.activemq.test
-                  toRoute: direct:${messaging.to.activemq.camelRoutes[0].destinationName}
+                  toRoute: mock:${messaging.to.activemq.camelRoutes[0].destinationName}
 
         rabbitmq:
             host: localhost
@@ -24,9 +24,9 @@ messaging:
             virtualHost: "/"
             camelRoutes:
                 - destinationName: generator.event.rabbitmq.test1
-                  toRoute: direct:${messaging.to.rabbitmq.camelRoutes[0].destinationName}
+                  toRoute: mock:${messaging.to.rabbitmq.camelRoutes[0].destinationName}
                 - destinationName: generator.event.rabbitmq.test2
-                  toRoute: direct:${messaging.to.rabbitmq.camelRoutes[1].destinationName}
+                  toRoute: mock:${messaging.to.rabbitmq.camelRoutes[1].destinationName}
 
 
         kafka:
@@ -34,4 +34,4 @@ messaging:
             port: 9092
             camelRoutes:
                 - destinationName: generator.event.kafka.test
-                  toRoute: direct:topic=${messaging.to.kafka.camelRoutes[0].destinationName}
+                  toRoute: mock:${messaging.to.kafka.camelRoutes[0].destinationName}

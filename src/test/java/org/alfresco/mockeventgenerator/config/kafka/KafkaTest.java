@@ -45,7 +45,7 @@ public class KafkaTest extends AbstractCamelTest
         assertNotNull(properties.getCamelRoutes());
         assertEquals(1, properties.getCamelRoutes().size());
         assertEquals(TOPIC_NAME, properties.getCamelRoutes().get(0).getDestinationName());
-        assertEquals("direct:topic=" + TOPIC_NAME, properties.getCamelRoutes().get(0).getToRoute());
+        assertEquals("mock:" + TOPIC_NAME, properties.getCamelRoutes().get(0).getToRoute());
     }
 
     @Override
