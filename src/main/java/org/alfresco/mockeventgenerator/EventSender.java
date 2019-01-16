@@ -15,6 +15,7 @@
  */
 package org.alfresco.mockeventgenerator;
 
+import java.text.MessageFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,8 +45,7 @@ public class EventSender
     {
         this.camelMessageProducer = camelMessageProducer;
         this.eventTypeCategory = eventTypeCategory;
-        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime()
-                    .availableProcessors() + 1);
+        this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     }
 
     public void sendRandomEvent(int numOfEvents)
@@ -75,8 +75,8 @@ public class EventSender
     public void sendRandomEventAtFixedRate(int periodInSeconds, int numOfEventsPerSecond, int runForInSeconds)
     {
         final AtomicBoolean cancelled = new AtomicBoolean(false);
-        final ScheduledFuture<?> senderHandler = executorService
-                    .scheduleAtFixedRate(() -> start(cancelled, numOfEventsPerSecond), 0, periodInSeconds, TimeUnit.SECONDS);
+        final ScheduledFuture<?> senderHandler = executorService.scheduleAtFixedRate(() -> start(cancelled, numOfEventsPerSecond), 0, periodInSeconds,
+                    TimeUnit.SECONDS);
 
         try
         {
@@ -106,9 +106,14 @@ public class EventSender
 
     public void sendEvent(Object event)
     {
+        sendEvent(event, null);
+    }
+
+    public void sendEvent(Object event, String destinationName)
+    {
         try
         {
-            camelMessageProducer.send(event);
+            camelMessageProducer.send(event, destinationName);
         }
         catch (Exception ex)
         {

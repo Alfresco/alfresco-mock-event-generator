@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +32,12 @@ import org.alfresco.event.model.ResourceV1;
 import org.alfresco.mockeventgenerator.EventController.CloudConnectorPayload;
 import org.alfresco.mockeventgenerator.EventController.EventRequestPayload;
 import org.alfresco.mockeventgenerator.EventMaker.PublicActivitiEventInstance;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.alfresco.mockeventgenerator.config.EventConfig;
 import org.alfresco.mockeventgenerator.model.CloudConnectorIntegrationRequest;
 import org.alfresco.sync.events.types.RepositoryEvent;
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.After;
 import org.junit.Before;
@@ -61,16 +59,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractCamelTest
 {
-    private static final String ROUTE_ID = "MOCK-ID";
     private static final ObjectMapper PUBLIC_OBJECT_MAPPER = EventObjectMapperFactory.createInstance();
     private static final ObjectMapper RAW_OBJECT_MAPPER = EventConfig.createAcsRawEventObjectMapper();
     private static final String BASE_URL = "http://localhost:{0}/alfresco/mock/";
+    private static final MessageFormat MESSAGE_FORMAT = new MessageFormat(BASE_URL);
 
     @Autowired
     protected CamelContext camelContext;
-
-    @EndpointInject(uri = "mock:resultEndpoint")
-    protected MockEndpoint mockEndpoint;
 
     @Autowired
     protected EventSender eventSender;
@@ -84,24 +79,25 @@ public abstract class AbstractCamelTest
     @LocalServerPort
     private int port;
 
+    protected List<MockEndpoint> mockEndpoints = new ArrayList<>();
     private ObjectMapper defaultObjectMapper;
     private String baseUrl;
 
     @Before
-    public void setUp() throws Exception
+    public void setUp()
     {
         this.defaultObjectMapper = camelMessageProducer.getObjectMapper();
-        MessageFormat messageFormat = new MessageFormat(BASE_URL);
-        this.baseUrl = messageFormat.format(new String[] { Integer.toString(port) });
-        // Configure route
-        configureRoute();
+        this.baseUrl = MESSAGE_FORMAT.format(new String[] { Integer.toString(port) });
+
+        // Construct MockEndpoints
+        getRoutes().forEach(p -> mockEndpoints.add(getMockEndpoint(p.getToRoute())));
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
     {
         MockEndpoint.resetMocks(camelContext);
-        camelContext.removeRoute(ROUTE_ID);
+        mockEndpoints.clear();
         camelMessageProducer.setObjectMapper(defaultObjectMapper);
     }
 
@@ -116,10 +112,9 @@ public abstract class AbstractCamelTest
         RepositoryEvent event2 = EventMaker.getRandomRawAcsEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(RAW_OBJECT_MAPPER.writeValueAsString(event1), RAW_OBJECT_MAPPER.writeValueAsString(event2)));
+        setExpectedBodiesReceived(RAW_OBJECT_MAPPER.writeValueAsString(event1), RAW_OBJECT_MAPPER.writeValueAsString(event2));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        setExpectedMessageCount(2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -128,7 +123,7 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
@@ -139,10 +134,9 @@ public abstract class AbstractCamelTest
         EventV1<? extends ResourceV1> event2 = EventMaker.getRandomPublicAcsEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
+        setExpectedBodiesReceived(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        setExpectedMessageCount(2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -151,7 +145,7 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
@@ -162,9 +156,9 @@ public abstract class AbstractCamelTest
         String event2 = EventMaker.getRandomRawActivitiEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(Arrays.asList(event1, event2));
+        setExpectedBodiesReceived(event1, event2);
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        setExpectedMessageCount(2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -173,7 +167,7 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
@@ -192,9 +186,9 @@ public abstract class AbstractCamelTest
         }
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(expectedBodies);
+        setExpectedBodiesReceived(expectedBodies.toArray());
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(12);
+        setExpectedMessageCount(12);
 
         // Send the 1st event. This should generate 11 events.
         eventSender.sendEvent(events1);
@@ -203,7 +197,7 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
@@ -214,10 +208,9 @@ public abstract class AbstractCamelTest
         CloudConnectorIntegrationRequest event2 = EventMaker.getRandomCloudConnectorEvent();
 
         // Set the expected messages
-        mockEndpoint.expectedBodiesReceived(
-                    Arrays.asList(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2)));
+        setExpectedBodiesReceived(PUBLIC_OBJECT_MAPPER.writeValueAsString(event1), PUBLIC_OBJECT_MAPPER.writeValueAsString(event2));
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(2);
+        setExpectedMessageCount(2);
 
         // Send the 1st event
         eventSender.sendEvent(event1);
@@ -226,11 +219,11 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         // Also, checks the received message body is equal to the sent message
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
-    public void testMockEventsViaRestApi() throws Exception
+    public void testMockEventsViaRestApi()
     {
         final int numOfEvents = 2;
         EventRequestPayload payload = new EventRequestPayload();
@@ -238,12 +231,12 @@ public abstract class AbstractCamelTest
         payload.setPauseTimeInMillis(-1L);
 
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(numOfEvents);
+        setExpectedMessageCount(numOfEvents);
         // Send event via Rest API
         restTemplate.postForLocation(baseUrl + "events", payload);
 
         // Checks that the received message count is equal to the number of messages sent
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
     @Test
@@ -257,9 +250,34 @@ public abstract class AbstractCamelTest
         payload.setInBoundVariables(inBoundVariables);
 
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(1);
+        setExpectedMessageCount(1);
         // Send event via Rest API
         restTemplate.postForLocation(baseUrl + "connector-event", payload);
+
+        checkMessageContains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables));
+
+        // Checks that the received message count is equal to the number of messages sent
+        assertIsSatisfied();
+    }
+
+    @Test
+    public void testCustomConnectorEventViaRestApi_inBoundVarsWithQueueName() throws Exception
+    {
+        final MockEndpoint mockEndpoint = getMockEndpoint("mock:testDynamicRoute");
+        Map<String, Object> inBoundVariables = new HashMap<>();
+
+        CloudConnectorPayload payload = new CloudConnectorPayload();
+        inBoundVariables.put("properties", Collections.singletonMap("cm:title", "Test Title"));
+        inBoundVariables.put("nodeId", UUID.randomUUID().toString());
+        payload.setInBoundVariables(inBoundVariables);
+
+        // Set the expected number of messages for this dynamic route
+        mockEndpoint.setExpectedMessageCount(1);
+        // As we are overriding the configured endpoints,
+        // we shouldn't receive any messages from them.
+        setExpectedMessageCount(0);
+        // Send event via Rest API and provide the destination name
+        restTemplate.postForLocation(baseUrl + "connector-event?destinationName=testDynamicRoute", payload);
 
         String receivedEvent = getBody(mockEndpoint, 0);
         assertNotNull(receivedEvent);
@@ -267,6 +285,8 @@ public abstract class AbstractCamelTest
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
+        // The configured endpoints should not receive any messages
+        assertIsSatisfied();
     }
 
     @Test
@@ -286,29 +306,49 @@ public abstract class AbstractCamelTest
         payload.setOutBoundVariables(outBoundVariables);
 
         // Set the expected number of messages
-        mockEndpoint.expectedMessageCount(1);
+        setExpectedMessageCount(1);
         // Send event via Rest API
         restTemplate.postForLocation(baseUrl + "connector-event", payload);
 
-        String receivedEvent = getBody(mockEndpoint, 0);
-        assertNotNull(receivedEvent);
-        assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables)));
-        assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(outBoundVariables)));
+        checkMessageContains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables),
+                    PUBLIC_OBJECT_MAPPER.writeValueAsString(outBoundVariables));
 
         // Checks that the received message count is equal to the number of messages sent
-        mockEndpoint.assertIsSatisfied();
+        assertIsSatisfied();
     }
 
-    protected void configureRoute() throws Exception
+    protected void setExpectedBodiesReceived(Object... expectedBodies)
     {
-        camelContext.addRoutes(new RouteBuilder()
-        {
-            @Override
-            public void configure()
+        mockEndpoints.forEach(m -> m.expectedBodiesReceived(expectedBodies));
+    }
+
+    protected void setExpectedMessageCount(int expectedCount)
+    {
+        mockEndpoints.forEach(m -> m.expectedMessageCount(expectedCount));
+    }
+
+    protected void assertIsSatisfied()
+    {
+        mockEndpoints.forEach(m -> {
+            try
             {
-                from(getRoute())
-                            .id(ROUTE_ID)
-                            .to(mockEndpoint);
+                m.assertIsSatisfied();
+            }
+            catch (InterruptedException e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    protected void checkMessageContains(String... variables)
+    {
+        mockEndpoints.forEach(mock -> {
+            String receivedEvent = getBody(mock, 0);
+            assertNotNull(receivedEvent);
+            for (String var : variables)
+            {
+                assertTrue(receivedEvent.contains(var));
             }
         });
     }
@@ -323,5 +363,11 @@ public abstract class AbstractCamelTest
         return list.get(index).getIn().getBody().toString();
     }
 
-    protected abstract String getRoute();
+    protected MockEndpoint getMockEndpoint(String route)
+    {
+        assertNotNull("The route uri cannot be null.", route);
+        return camelContext.getEndpoint(route, MockEndpoint.class);
+    }
+
+    protected abstract List<CamelRouteProperties> getRoutes();
 }

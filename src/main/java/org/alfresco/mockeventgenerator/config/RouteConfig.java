@@ -17,20 +17,22 @@ package org.alfresco.mockeventgenerator.config;
 
 import org.springframework.context.annotation.Bean;
 
+import java.util.List;
+
 /**
  * @author Jamal Kaabi-Mofrad
  */
 public class RouteConfig
 {
-    private final CamelRouteProperties routeProperties;
+    private final List<CamelRouteProperties> routeProperties;
 
-    public RouteConfig(CamelRouteProperties routeProperties)
+    public RouteConfig(List<CamelRouteProperties> routeProperties)
     {
         this.routeProperties = routeProperties;
     }
 
     @Bean
-    public CamelRouteProperties routeProperties()
+    public List<CamelRouteProperties> routeProperties()
     {
         return routeProperties;
     }

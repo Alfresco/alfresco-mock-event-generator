@@ -39,7 +39,7 @@ public class AmqpConfig extends RouteConfig
     @Autowired
     public AmqpConfig(AmqpProperties properties)
     {
-        super(properties.getCamelRoute());
+        super(properties.getCamelRoutes());
         this.properties = properties;
     }
 

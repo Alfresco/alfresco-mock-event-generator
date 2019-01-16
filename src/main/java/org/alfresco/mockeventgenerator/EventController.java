@@ -24,11 +24,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -48,7 +49,7 @@ public class EventController
         this.messageSender = messageSender;
     }
 
-    @RequestMapping(path = "/events" , method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @RequestMapping(path = "/events", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     public ResponseEntity sendEvents(@RequestBody EventRequestPayload payload)
     {
@@ -67,7 +68,7 @@ public class EventController
 
     @RequestMapping(path = "/connector-event", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity sendCloudConnectorEvents(@RequestBody CloudConnectorPayload payload)
+    public ResponseEntity sendCloudConnectorEvents(@RequestBody CloudConnectorPayload payload, @RequestParam(value = "destinationName", required = false) String destinationName)
     {
         if (payload == null)
         {
@@ -83,7 +84,7 @@ public class EventController
             event.getIntegrationContext().setOutBoundVariables(payload.getOutBoundVariables());
         }
 
-        messageSender.sendEvent(event);
+        messageSender.sendEvent(event, destinationName);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
@@ -120,7 +121,7 @@ public class EventController
 
     public static class CloudConnectorPayload
     {
-        Map<String ,Object> inBoundVariables;
+        Map<String, Object> inBoundVariables;
         Map<String, Object> outBoundVariables;
 
         public Map<String, Object> getInBoundVariables()

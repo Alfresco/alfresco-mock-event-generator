@@ -19,9 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.alfresco.mockeventgenerator.AbstractCamelTest;
+import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -29,7 +32,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("rabbitMQ")
 public class RabbitMQTest extends AbstractCamelTest
 {
-    private static final String TOPIC_NAME = "generator.event.rabbitmq.test";
+    private static final String TOPIC_NAME1 = "generator.event.rabbitmq.test1";
+    private static final String TOPIC_NAME2 = "generator.event.rabbitmq.test2";
 
     @Autowired
     private RabbitMQProperties properties;
@@ -42,14 +46,17 @@ public class RabbitMQTest extends AbstractCamelTest
         assertEquals("/", properties.getVirtualHost());
         assertEquals("guest", properties.getUsername());
         assertEquals("guest", properties.getPassword());
-        assertNotNull(properties.getCamelRoute());
-        assertEquals(TOPIC_NAME, properties.getCamelRoute().getDestinationName());
-        assertEquals("direct:" + TOPIC_NAME, properties.getCamelRoute().getToRoute());
+        assertNotNull(properties.getCamelRoutes());
+        assertEquals(2, properties.getCamelRoutes().size());
+        assertEquals(TOPIC_NAME1, properties.getCamelRoutes().get(0).getDestinationName());
+        assertEquals(TOPIC_NAME2, properties.getCamelRoutes().get(1).getDestinationName());
+        assertEquals("mock:" + TOPIC_NAME1, properties.getCamelRoutes().get(0).getToRoute());
+        assertEquals("mock:" + TOPIC_NAME2, properties.getCamelRoutes().get(1).getToRoute());
     }
 
     @Override
-    protected String getRoute()
+    protected List<CamelRouteProperties> getRoutes()
     {
-        return properties.getCamelRoute().getToRoute();
+        return properties.getCamelRoutes();
     }
 }

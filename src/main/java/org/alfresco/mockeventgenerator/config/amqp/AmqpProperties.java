@@ -18,22 +18,25 @@ package org.alfresco.mockeventgenerator.config.amqp;
 import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Jamal Kaabi-Mofrad
  */
 @ConfigurationProperties(prefix = "messaging.to.activemq")
 public class AmqpProperties
 {
-    private final CamelRouteProperties camelRoute = new CamelRouteProperties();
+    private final List<CamelRouteProperties> camelRoutes = new ArrayList<>();
     private String host;
     private int port;
     private String username;
     private String password;
     private String url;
 
-    public CamelRouteProperties getCamelRoute()
+    public List<CamelRouteProperties> getCamelRoutes()
     {
-        return camelRoute;
+        return camelRoutes;
     }
 
     public String getHost()

@@ -17,6 +17,7 @@ package org.alfresco.mockeventgenerator;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -42,19 +44,21 @@ public class CamelMessageProducer
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelMessageProducer.class);
 
     private final ProducerTemplate producer;
-    private final String endpoint;
+    private final List<CamelRouteProperties> endpoints;
     private final ExecutorService executor;
     private final AtomicInteger totalMessageCounter;
     private final AtomicBoolean aggregated;
     private ObjectMapper objectMapper;
 
     @Autowired
-    public CamelMessageProducer(CamelContext camelContext, CamelRouteProperties routeProperties, ObjectMapper objectMapper)
+    public CamelMessageProducer(CamelContext camelContext, List<CamelRouteProperties> routeProperties, ObjectMapper objectMapper)
     {
         this.producer = camelContext.createProducerTemplate();
         this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         this.producer.setExecutorService(executor);
-        this.endpoint = routeProperties.getToRoute();
+        this.endpoints = routeProperties;
+        // Validate endpoints
+        validateEndPoints();
         this.totalMessageCounter = new AtomicInteger(0);
         this.aggregated = new AtomicBoolean(false);
         this.objectMapper = objectMapper;
@@ -62,10 +66,15 @@ public class CamelMessageProducer
 
     public void send(Object message) throws Exception
     {
-        send(message, Collections.emptyMap());
+        send(message, Collections.emptyMap(), null);
     }
 
-    public void send(Object message, Map<String, Object> headers) throws Exception
+    public void send(Object message, String destinationName) throws Exception
+    {
+        send(message, Collections.emptyMap(), destinationName);
+    }
+
+    public void send(Object message, Map<String, Object> headers, String destinationName) throws Exception
     {
         if (message instanceof Collection)
         {
@@ -73,7 +82,7 @@ public class CamelMessageProducer
             Collection<?> msgs = (Collection<?>) message;
             for (Object obj : msgs)
             {
-                sendImpl(obj, headers);
+                sendImpl(obj, headers, destinationName);
             }
         }
         else
@@ -82,22 +91,65 @@ public class CamelMessageProducer
             {
                 aggregated.set(true);
             }
-            sendImpl(message, headers);
+            sendImpl(message, headers, destinationName);
         }
     }
 
-    private void sendImpl(Object message, Map<String, Object> headers) throws Exception
+    private void sendImpl(Object message, Map<String, Object> headers, String destinationName) throws Exception
     {
         if (!(message instanceof String))
         {
             message = objectMapper.writeValueAsString(message);
         }
+
+        if (!StringUtils.isEmpty(destinationName))
+        {
+            // We know that there must be at least one endpoint, so get the first one
+            CamelRouteProperties routeProperties = endpoints.get(0);
+            // Replace the configured destinationName in the route with the given destinationName
+            String endpoint = routeProperties.getToRoute().replace(routeProperties.getDestinationName(), destinationName);
+            sendMessage(message, headers, endpoint);
+        }
+        else
+        {
+            for (CamelRouteProperties prop : endpoints)
+            {
+                String route = prop.getToRoute();
+
+                sendMessage(message, headers, route);
+            }
+        }
+
+        totalMessageCounter.incrementAndGet();
+    }
+
+    private void sendMessage(Object message, Map<String, Object> headers, String endpoint) throws Exception
+    {
+
         if (LOGGER.isDebugEnabled())
         {
             LOGGER.debug("Sending message:" + message.toString() + " \nTo endpoint:" + endpoint);
         }
+
         producer.sendBodyAndHeaders(endpoint, message, headers);
-        totalMessageCounter.incrementAndGet();
+    }
+
+    private void validateEndPoints()
+    {
+        if (endpoints.isEmpty())
+        {
+            throw new RuntimeException("There must be at least one Endpoint defined.");
+        }
+        endpoints.forEach(p -> {
+            if (StringUtils.isEmpty(p.getDestinationName()))
+            {
+                throw new RuntimeException("'destinationName' can't be null or empty.");
+            }
+            if (StringUtils.isEmpty(p.getToRoute()))
+            {
+                throw new RuntimeException("'toRoute' can't be null or empty.");
+            }
+        });
     }
 
     public void shutdown()
