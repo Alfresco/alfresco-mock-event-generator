@@ -193,7 +193,7 @@ public class EventMaker
             @Override
             public EventV1<AuthorityResourceV1> getEvent()
             {
-                AuthorityResourceV1 resource = new AuthorityResourceV1(getUUID(), new ArrayList<>(), getUserName());
+                AuthorityResourceV1 resource = new AuthorityResourceV1(getUserName(), new ArrayList<>());
                 resource.setParentGroup(getGroup());
 
                 return new EventV1<>("AUTHADDEDTOGROUP", "admin", resource);
