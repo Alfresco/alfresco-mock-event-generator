@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -144,5 +145,18 @@ public class EventConfig
         };
 
         public abstract Object getRandomEvent();
+    }
+
+    /*
+    * Override the default converter, so we can use a different ObjectMapper
+    * rather than the one intended for events.
+    */
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter()
+    {
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper();
+        jsonConverter.setObjectMapper(objectMapper);
+        return jsonConverter;
     }
 }

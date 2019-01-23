@@ -56,7 +56,7 @@ To start the application with Kafka:
     mvn spring-boot:run -Dspring.profiles.active=kafka
 
 Executing any of the above commands will start the application, connect to the given broker and send **10** messages with a pause time of **1** second between each message.
-The messages are sent to the defined topic. See _**camelRoute.destinationName**_ in the application.yml file.
+The messages are sent to the defined topic. See _**camelRoutes.destinationName**_ in the application.yml file.
 
 ### Sending events via REST API
 
@@ -111,7 +111,7 @@ The default Cloud Connector event looks like:
 
 To override the default event, first run the application with the following settings:
 
-    mvn spring-boot:run -Dspring.profiles.active=rabbitMQ -Dgenerator.startSendAtStartup=false -Dgenerator.eventCategory=CLOUD_CONNECTOR_EVENT -Dmessaging.to.rabbitmq.camelRoute.destinationName="Example Connector"
+    mvn spring-boot:run -Dspring.profiles.active=rabbitMQ -Dgenerator.startSendAtStartup=false -Dgenerator.eventCategory=CLOUD_CONNECTOR_EVENT
 
 then do an HTTP POST to the following URL:
 
