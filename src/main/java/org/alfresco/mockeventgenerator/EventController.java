@@ -51,6 +51,18 @@ public class EventController
 
     @RequestMapping(path = "/events", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
+    public ResponseEntity sendEvents(@RequestBody Object payload, @RequestParam(value = "destinationName", required = false) String destinationName)
+    {
+        if (payload == null)
+        {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        messageSender.sendEvent(payload, destinationName);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(path = "/random-events", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
     public ResponseEntity sendEvents(@RequestBody EventRequestPayload payload)
     {
         if (payload.getNumOfEvents() == null || payload.getNumOfEvents() <= 0)
@@ -97,6 +109,7 @@ public class EventController
     {
         private Integer numOfEvents;
         private Long pauseTimeInMillis;
+        private Object message;
 
         public Integer getNumOfEvents()
         {
@@ -116,6 +129,16 @@ public class EventController
         public void setPauseTimeInMillis(Long pauseTimeInMillis)
         {
             this.pauseTimeInMillis = pauseTimeInMillis;
+        }
+
+        public Object getMessage()
+        {
+            return message;
+        }
+
+        public void setMessage(Object message)
+        {
+            this.message = message;
         }
     }
 
