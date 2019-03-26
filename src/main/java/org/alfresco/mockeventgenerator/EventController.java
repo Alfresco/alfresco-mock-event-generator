@@ -51,6 +51,18 @@ public class EventController
 
     @RequestMapping(path = "/events", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
+    public ResponseEntity sendEvents(@RequestBody Object payload, @RequestParam(value = "destinationName", required = false) String destinationName)
+    {
+        if (payload == null)
+        {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        messageSender.sendEvent(payload, destinationName);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(path = "/random-events", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @ResponseBody
     public ResponseEntity sendEvents(@RequestBody EventRequestPayload payload)
     {
         if (payload.getNumOfEvents() == null || payload.getNumOfEvents() <= 0)

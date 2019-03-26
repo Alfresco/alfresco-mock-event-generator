@@ -68,6 +68,51 @@ then do an HTTP POST to the following URL:
 
     http://<host>:<port>/alfresco/mock/events
 
+ Request payload example:
+
+```
+{
+    "schema": "org.alfresco.event.model.EventV1",
+    "type": "NODEADDED",
+    "streamPosition": "1532902795992-gg6vva",
+    "principal": "user1",
+    "resource": {
+        "schema": "org.alfresco.event.model.acs.NodeResourceV1",
+        "id": "489ced52-9b4c-4d71-8c67-99b1d340c0e6",
+        "primaryHierarchy": [
+            {
+                "id": "ea74ec76-3b7d-4c0e-8d2c-2cd212e255a9",
+                "type": "Node"
+            },
+            {
+                "id": "5ba21380-b302-4a86-984f-47eac9d5f058",
+                "type": "Node"
+            },
+            {
+                "id": "c2346c1d-4859-490b-9cd2-49a8d54d11ed",
+                "type": "Node"
+            },
+            {
+                "id": "c23ed6ab-b8de-4daa-ad1d-b1c0aed3d651",
+                "type": "Node"
+            },
+            {
+                "id": "f743f8b7-677e-4613-84e9-cfc7e9399eca",
+                "type": "Node"
+            }
+        ],
+        "nodeType": "cm:content"
+    }
+}
+```
+You can also optionally specify the topic name as the query parameter for the **_/events_** endpoint. For, example:
+
+    http://<host>:<port>/alfresco/mock/events?destinationName=helloWorld
+
+for random events (based on the configured event category), do an HTTP POST to the following URL:
+
+    http://<host>:<port>/alfresco/mock/random-events
+
 **Note:** You must specify at least a **_numOfEvents_** in your request payload.
  
  Request payload example:

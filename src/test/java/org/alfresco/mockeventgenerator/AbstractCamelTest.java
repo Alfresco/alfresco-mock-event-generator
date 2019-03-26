@@ -31,6 +31,7 @@ import org.alfresco.event.model.EventV1;
 import org.alfresco.event.model.ResourceV1;
 import org.alfresco.mockeventgenerator.EventController.CloudConnectorPayload;
 import org.alfresco.mockeventgenerator.EventController.EventRequestPayload;
+import org.alfresco.mockeventgenerator.EventMaker.PublicAcsEventInstance;
 import org.alfresco.mockeventgenerator.EventMaker.PublicActivitiEventInstance;
 import org.alfresco.mockeventgenerator.config.CamelRouteProperties;
 import org.alfresco.mockeventgenerator.config.EventConfig;
@@ -225,6 +226,43 @@ public abstract class AbstractCamelTest
     @Test
     public void testMockEventsViaRestApi()
     {
+        Object payload = PublicAcsEventInstance.NODE_ADDED_EVENT.getEvent();
+
+        // Set the expected number of messages
+        setExpectedMessageCount(1);
+        // Send event via Rest API
+        restTemplate.postForLocation(baseUrl + "events", payload);
+
+        // Checks that the received message count is equal to the number of messages sent
+        assertIsSatisfied();
+    }
+
+    @Test
+    public void testMockEventsViaRestApiWithTopicName() throws Exception
+    {
+        final MockEndpoint mockEndpoint = getMockEndpoint("mock:testDynamicEventsRoute");
+
+        // Set the expected number of messages for this dynamic route
+        mockEndpoint.setExpectedMessageCount(1);
+        // As we are overriding the configured endpoints,
+        // we shouldn't receive any messages from them.
+        setExpectedMessageCount(0);
+
+        Object payload = PublicAcsEventInstance.NODE_ADDED_EVENT.getEvent();
+        // Send event via Rest API
+        restTemplate.postForLocation(baseUrl + "events?destinationName=testDynamicEventsRoute", payload);
+
+        checkMessageFromDestination(mockEndpoint, 0, "testDynamicEventsRoute");
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+        // The configured endpoints should not receive any messages
+        assertIsSatisfied();
+    }
+
+    @Test
+    public void testMockRandomEventsViaRestApi()
+    {
         final int numOfEvents = 2;
         EventRequestPayload payload = new EventRequestPayload();
         payload.setNumOfEvents(numOfEvents);
@@ -233,7 +271,7 @@ public abstract class AbstractCamelTest
         // Set the expected number of messages
         setExpectedMessageCount(numOfEvents);
         // Send event via Rest API
-        restTemplate.postForLocation(baseUrl + "events", payload);
+        restTemplate.postForLocation(baseUrl + "random-events", payload);
 
         // Checks that the received message count is equal to the number of messages sent
         assertIsSatisfied();
@@ -261,7 +299,7 @@ public abstract class AbstractCamelTest
     }
 
     @Test
-    public void testCustomConnectorEventViaRestApi_inBoundVarsWithQueueName() throws Exception
+    public void testCustomConnectorEventViaRestApi_inBoundVarsWithTopicName() throws Exception
     {
         final MockEndpoint mockEndpoint = getMockEndpoint("mock:testDynamicRoute");
         Map<String, Object> inBoundVariables = new HashMap<>();
@@ -282,6 +320,8 @@ public abstract class AbstractCamelTest
         String receivedEvent = getBody(mockEndpoint, 0);
         assertNotNull(receivedEvent);
         assertTrue(receivedEvent.contains(PUBLIC_OBJECT_MAPPER.writeValueAsString(inBoundVariables)));
+
+        checkMessageFromDestination(mockEndpoint, 0, "testDynamicRoute");
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
@@ -351,6 +391,15 @@ public abstract class AbstractCamelTest
                 assertTrue(receivedEvent.contains(var));
             }
         });
+    }
+
+    protected void checkMessageFromDestination(MockEndpoint mockEndpoint, int index, String expectedDestination)
+    {
+        List<Exchange> list = mockEndpoint.getExchanges();
+        assertTrue("Invalid message index.", list.size() > index);
+        String fromEndpoint = list.get(index).getFromEndpoint().getEndpointUri();
+        assertTrue("Expected message from destination does not match the actual message from destination",
+                    fromEndpoint.endsWith(expectedDestination));
     }
 
     protected String getBody(MockEndpoint mockEndpoint, int index)
