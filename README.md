@@ -105,6 +105,9 @@ then do an HTTP POST to the following URL:
     }
 }
 ```
+You can also optionally specify the topic name as the query parameter for the **_/events_** endpoint. For, example:
+
+    http://<host>:<port>/alfresco/mock/events?destinationName=helloWorld
 
 for random events (based on the configured event category), do an HTTP POST to the following URL:
 
