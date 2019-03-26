@@ -109,7 +109,6 @@ public class EventController
     {
         private Integer numOfEvents;
         private Long pauseTimeInMillis;
-        private Object message;
 
         public Integer getNumOfEvents()
         {
@@ -129,16 +128,6 @@ public class EventController
         public void setPauseTimeInMillis(Long pauseTimeInMillis)
         {
             this.pauseTimeInMillis = pauseTimeInMillis;
-        }
-
-        public Object getMessage()
-        {
-            return message;
-        }
-
-        public void setMessage(Object message)
-        {
-            this.message = message;
         }
     }
 
